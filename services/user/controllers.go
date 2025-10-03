@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"api/config"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -98,9 +100,9 @@ func SendEmailNotification(c *fiber.Ctx, client *ent.Client) error {
 		})
 	}
 	go utils.SendContactEmail(
-		"theekshana.sandaru@gmail.com",
-		"yglk juyr zlbc bswr",
-		"theekshana.sandaru@gmail.com",
+		config.AppConfig.OwnerEmail,
+		config.AppConfig.EmailPassword,
+		config.AppConfig.OwnerEmail,
 		emailMessage.Name,
 		emailMessage.UserEmail,
 		emailMessage.Message,

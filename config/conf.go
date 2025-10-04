@@ -25,7 +25,7 @@ func LoadConfig() {
 	AppConfig = &Config{
 		DBUser:        getEnv("DB_USER", ""),
 		DBPassword:    getEnv("DB_PASSWORD", ""),
-		DBHost:        getEnv("DB_HOST", ""),
+		DBHost:        getEnv("DB_HOST", "127.0.0.1"),
 		DBPort:        getEnv("DB_PORT", ""),
 		DBName:        getEnv("DB_NAME", ""),
 		AppPort:       getEnv("APP_PORT", "4000"),

@@ -47,13 +47,14 @@ jobs:
           tags: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/myprofile:latest
 
       - name: Deploy to server via SSH
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            echo "✅ Successfully connected to VPS!"
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myprofile:latest
             docker stop myprofile || true
             docker rm myprofile || true

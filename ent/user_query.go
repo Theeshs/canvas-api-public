@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"api/ent/document"
 	"api/ent/education"
 	"api/ent/experience"
 	"api/ent/predicate"
@@ -27,6 +28,7 @@ type UserQuery struct {
 	predicates      []predicate.User
 	withEducations  *EducationQuery
 	withExperiences *ExperienceQuery
+	withDocuments   *DocumentQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -100,6 +102,28 @@ func (_q *UserQuery) QueryExperiences() *ExperienceQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(experience.Table, experience.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.ExperiencesTable, user.ExperiencesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDocuments chains the current query on the "documents" edge.
+func (_q *UserQuery) QueryDocuments() *DocumentQuery {
+	query := (&DocumentClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(document.Table, document.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.DocumentsTable, user.DocumentsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -301,6 +325,7 @@ func (_q *UserQuery) Clone() *UserQuery {
 		predicates:      append([]predicate.User{}, _q.predicates...),
 		withEducations:  _q.withEducations.Clone(),
 		withExperiences: _q.withExperiences.Clone(),
+		withDocuments:   _q.withDocuments.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -326,6 +351,17 @@ func (_q *UserQuery) WithExperiences(opts ...func(*ExperienceQuery)) *UserQuery 
 		opt(query)
 	}
 	_q.withExperiences = query
+	return _q
+}
+
+// WithDocuments tells the query-builder to eager-load the nodes that are connected to
+// the "documents" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithDocuments(opts ...func(*DocumentQuery)) *UserQuery {
+	query := (&DocumentClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDocuments = query
 	return _q
 }
 
@@ -407,9 +443,10 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withEducations != nil,
 			_q.withExperiences != nil,
+			_q.withDocuments != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -441,6 +478,13 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := _q.loadExperiences(ctx, query, nodes,
 			func(n *User) { n.Edges.Experiences = []*Experience{} },
 			func(n *User, e *Experience) { n.Edges.Experiences = append(n.Edges.Experiences, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withDocuments; query != nil {
+		if err := _q.loadDocuments(ctx, query, nodes,
+			func(n *User) { n.Edges.Documents = []*Document{} },
+			func(n *User, e *Document) { n.Edges.Documents = append(n.Edges.Documents, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -492,6 +536,36 @@ func (_q *UserQuery) loadExperiences(ctx context.Context, query *ExperienceQuery
 	}
 	query.Where(predicate.Experience(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.ExperiencesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadDocuments(ctx context.Context, query *DocumentQuery, nodes []*User, init func(*User), assign func(*User, *Document)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uint]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(document.FieldUserID)
+	}
+	query.Where(predicate.Document(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.DocumentsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

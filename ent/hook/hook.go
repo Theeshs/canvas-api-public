@@ -8,6 +8,18 @@ import (
 	"fmt"
 )
 
+// The DocumentFunc type is an adapter to allow the use of ordinary
+// function as Document mutator.
+type DocumentFunc func(context.Context, *ent.DocumentMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DocumentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DocumentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DocumentMutation", m)
+}
+
 // The EducationFunc type is an adapter to allow the use of ordinary
 // function as Education mutator.
 type EducationFunc func(context.Context, *ent.EducationMutation) (ent.Value, error)

@@ -3,6 +3,7 @@ package user
 import (
 	"api/common"
 	"api/ent"
+	"api/ent/document"
 	"api/utils"
 	"context"
 	"fmt"
@@ -110,5 +111,32 @@ func SendEmailNotification(c *fiber.Ctx, client *ent.Client) error {
 
 	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
 		"message": "Sucessfully sent the email",
+	})
+}
+
+func UploadUserResume(c *fiber.Ctx, client *ent.Client) error {
+	file, err := c.FormFile("file")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("File not found")
+	}
+
+	// Open file
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	// Upload to Google Drive
+	fileID, err := GenUploadToDrive(file.Filename, src, 1, document.DocumentTypeResume, client)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "File uploaded to Google Drive successfully",
+		"file_id": fileID,
 	})
 }

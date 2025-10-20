@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Document is the predicate function for document builders.
+type Document func(*sql.Selector)
+
 // Education is the predicate function for education builders.
 type Education func(*sql.Selector)
 

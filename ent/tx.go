@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Document is the client for interacting with the Document builders.
+	Document *DocumentClient
 	// Education is the client for interacting with the Education builders.
 	Education *EducationClient
 	// Experience is the client for interacting with the Experience builders.
@@ -153,6 +155,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Document = NewDocumentClient(tx.config)
 	tx.Education = NewEducationClient(tx.config)
 	tx.Experience = NewExperienceClient(tx.config)
 	tx.Skill = NewSkillClient(tx.config)
@@ -167,7 +170,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Education.QueryXXX(), the query will be executed
+// applies a query, for example: Document.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

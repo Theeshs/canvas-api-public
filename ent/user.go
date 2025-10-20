@@ -59,9 +59,11 @@ type UserEdges struct {
 	Educations []*Education `json:"educations,omitempty"`
 	// Experiences holds the value of the experiences edge.
 	Experiences []*Experience `json:"experiences,omitempty"`
+	// Documents holds the value of the documents edge.
+	Documents []*Document `json:"documents,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // EducationsOrErr returns the Educations value or an error if the edge
@@ -80,6 +82,15 @@ func (e UserEdges) ExperiencesOrErr() ([]*Experience, error) {
 		return e.Experiences, nil
 	}
 	return nil, &NotLoadedError{edge: "experiences"}
+}
+
+// DocumentsOrErr returns the Documents value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) DocumentsOrErr() ([]*Document, error) {
+	if e.loadedTypes[2] {
+		return e.Documents, nil
+	}
+	return nil, &NotLoadedError{edge: "documents"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -225,6 +236,11 @@ func (_m *User) QueryEducations() *EducationQuery {
 // QueryExperiences queries the "experiences" edge of the User entity.
 func (_m *User) QueryExperiences() *ExperienceQuery {
 	return NewUserClient(_m.config).QueryExperiences(_m)
+}
+
+// QueryDocuments queries the "documents" edge of the User entity.
+func (_m *User) QueryDocuments() *DocumentQuery {
+	return NewUserClient(_m.config).QueryDocuments(_m)
 }
 
 // Update returns a builder for updating this User.

@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"api/ent/document"
 	"api/ent/education"
 	"api/ent/experience"
 	"api/ent/user"
@@ -244,6 +245,21 @@ func (_c *UserCreate) AddExperiences(v ...*Experience) *UserCreate {
 	return _c.AddExperienceIDs(ids...)
 }
 
+// AddDocumentIDs adds the "documents" edge to the Document entity by IDs.
+func (_c *UserCreate) AddDocumentIDs(ids ...uint) *UserCreate {
+	_c.mutation.AddDocumentIDs(ids...)
+	return _c
+}
+
+// AddDocuments adds the "documents" edges to the Document entity.
+func (_c *UserCreate) AddDocuments(v ...*Document) *UserCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddDocumentIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_c *UserCreate) Mutation() *UserMutation {
 	return _c.mutation
@@ -417,6 +433,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(experience.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.DocumentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DocumentsTable,
+			Columns: []string{user.DocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(document.FieldID, field.TypeUint),
 			},
 		}
 		for _, k := range nodes {

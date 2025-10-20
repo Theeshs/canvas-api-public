@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"api/ent/document"
 	"api/ent/education"
 	"api/ent/experience"
 	"api/ent/schema"
@@ -16,6 +17,18 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	documentFields := schema.Document{}.Fields()
+	_ = documentFields
+	// documentDescCreatedAt is the schema descriptor for created_at field.
+	documentDescCreatedAt := documentFields[8].Descriptor()
+	// document.DefaultCreatedAt holds the default value on creation for the created_at field.
+	document.DefaultCreatedAt = documentDescCreatedAt.Default.(func() time.Time)
+	// documentDescUpdatedAt is the schema descriptor for updated_at field.
+	documentDescUpdatedAt := documentFields[9].Descriptor()
+	// document.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	document.DefaultUpdatedAt = documentDescUpdatedAt.Default.(func() time.Time)
+	// document.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	document.UpdateDefaultUpdatedAt = documentDescUpdatedAt.UpdateDefault.(func() time.Time)
 	educationFields := schema.Education{}.Fields()
 	_ = educationFields
 	// educationDescCreatedAt is the schema descriptor for created_at field.

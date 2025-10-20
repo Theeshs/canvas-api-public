@@ -40,5 +40,6 @@ func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("educations", Education.Type),
 		edge.To("experiences", Experience.Type),
+		edge.To("documents", Document.Type),
 	}
 }

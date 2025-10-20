@@ -9,6 +9,33 @@ import (
 )
 
 var (
+	// DocumentColumns holds the columns for the "document" table.
+	DocumentColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true, SchemaType: map[string]string{"postgres": "serial"}},
+		{Name: "document_name", Type: field.TypeString},
+		{Name: "document_type", Type: field.TypeEnum, Enums: []string{"resume", "id_card", "certificate", "other"}, Default: "other"},
+		{Name: "google_id", Type: field.TypeString},
+		{Name: "document_web_link", Type: field.TypeString, Nullable: true},
+		{Name: "document_thumnail_link", Type: field.TypeString, Nullable: true},
+		{Name: "document_export_link", Type: field.TypeString, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "user_id", Type: field.TypeUint, SchemaType: map[string]string{"postgres": "serial"}},
+	}
+	// DocumentTable holds the schema information for the "document" table.
+	DocumentTable = &schema.Table{
+		Name:       "document",
+		Columns:    DocumentColumns,
+		PrimaryKey: []*schema.Column{DocumentColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "document_users_documents",
+				Columns:    []*schema.Column{DocumentColumns[9]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// EducationColumns holds the columns for the "education" table.
 	EducationColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint, Increment: true, SchemaType: map[string]string{"postgres": "serial"}},
@@ -141,6 +168,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		DocumentTable,
 		EducationTable,
 		ExperienceTable,
 		SkillTable,
@@ -150,6 +178,10 @@ var (
 )
 
 func init() {
+	DocumentTable.ForeignKeys[0].RefTable = UsersTable
+	DocumentTable.Annotation = &entsql.Annotation{
+		Table: "document",
+	}
 	EducationTable.ForeignKeys[0].RefTable = UsersTable
 	EducationTable.Annotation = &entsql.Annotation{
 		Table: "education",

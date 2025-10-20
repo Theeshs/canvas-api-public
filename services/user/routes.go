@@ -19,4 +19,7 @@ func RegisterRoutes(app *fiber.App, client *ent.Client) {
 	app.Post("/email", func(c *fiber.Ctx) error {
 		return SendEmailNotification(c, client)
 	})
+	app.Post("/resume", func(c *fiber.Ctx) error {
+		return UploadUserResume(c, client)
+	})
 }

@@ -11,6 +11,7 @@ import (
 
 	"api/ent/migrate"
 
+	"api/ent/document"
 	"api/ent/education"
 	"api/ent/experience"
 	"api/ent/skill"
@@ -28,6 +29,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Document is the client for interacting with the Document builders.
+	Document *DocumentClient
 	// Education is the client for interacting with the Education builders.
 	Education *EducationClient
 	// Experience is the client for interacting with the Experience builders.
@@ -49,6 +52,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Document = NewDocumentClient(c.config)
 	c.Education = NewEducationClient(c.config)
 	c.Experience = NewExperienceClient(c.config)
 	c.Skill = NewSkillClient(c.config)
@@ -146,6 +150,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:                  ctx,
 		config:               cfg,
+		Document:             NewDocumentClient(cfg),
 		Education:            NewEducationClient(cfg),
 		Experience:           NewExperienceClient(cfg),
 		Skill:                NewSkillClient(cfg),
@@ -170,6 +175,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:                  ctx,
 		config:               cfg,
+		Document:             NewDocumentClient(cfg),
 		Education:            NewEducationClient(cfg),
 		Experience:           NewExperienceClient(cfg),
 		Skill:                NewSkillClient(cfg),
@@ -181,7 +187,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Education.
+//		Document.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -203,26 +209,28 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Education.Use(hooks...)
-	c.Experience.Use(hooks...)
-	c.Skill.Use(hooks...)
-	c.User.Use(hooks...)
-	c.UserSkillAssociation.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.Document, c.Education, c.Experience, c.Skill, c.User, c.UserSkillAssociation,
+	} {
+		n.Use(hooks...)
+	}
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Education.Intercept(interceptors...)
-	c.Experience.Intercept(interceptors...)
-	c.Skill.Intercept(interceptors...)
-	c.User.Intercept(interceptors...)
-	c.UserSkillAssociation.Intercept(interceptors...)
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.Document, c.Education, c.Experience, c.Skill, c.User, c.UserSkillAssociation,
+	} {
+		n.Intercept(interceptors...)
+	}
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *DocumentMutation:
+		return c.Document.mutate(ctx, m)
 	case *EducationMutation:
 		return c.Education.mutate(ctx, m)
 	case *ExperienceMutation:
@@ -235,6 +243,155 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.UserSkillAssociation.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// DocumentClient is a client for the Document schema.
+type DocumentClient struct {
+	config
+}
+
+// NewDocumentClient returns a client for the Document from the given config.
+func NewDocumentClient(c config) *DocumentClient {
+	return &DocumentClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `document.Hooks(f(g(h())))`.
+func (c *DocumentClient) Use(hooks ...Hook) {
+	c.hooks.Document = append(c.hooks.Document, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `document.Intercept(f(g(h())))`.
+func (c *DocumentClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Document = append(c.inters.Document, interceptors...)
+}
+
+// Create returns a builder for creating a Document entity.
+func (c *DocumentClient) Create() *DocumentCreate {
+	mutation := newDocumentMutation(c.config, OpCreate)
+	return &DocumentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Document entities.
+func (c *DocumentClient) CreateBulk(builders ...*DocumentCreate) *DocumentCreateBulk {
+	return &DocumentCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DocumentClient) MapCreateBulk(slice any, setFunc func(*DocumentCreate, int)) *DocumentCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DocumentCreateBulk{err: fmt.Errorf("calling to DocumentClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DocumentCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DocumentCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Document.
+func (c *DocumentClient) Update() *DocumentUpdate {
+	mutation := newDocumentMutation(c.config, OpUpdate)
+	return &DocumentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DocumentClient) UpdateOne(_m *Document) *DocumentUpdateOne {
+	mutation := newDocumentMutation(c.config, OpUpdateOne, withDocument(_m))
+	return &DocumentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DocumentClient) UpdateOneID(id uint) *DocumentUpdateOne {
+	mutation := newDocumentMutation(c.config, OpUpdateOne, withDocumentID(id))
+	return &DocumentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Document.
+func (c *DocumentClient) Delete() *DocumentDelete {
+	mutation := newDocumentMutation(c.config, OpDelete)
+	return &DocumentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DocumentClient) DeleteOne(_m *Document) *DocumentDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DocumentClient) DeleteOneID(id uint) *DocumentDeleteOne {
+	builder := c.Delete().Where(document.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DocumentDeleteOne{builder}
+}
+
+// Query returns a query builder for Document.
+func (c *DocumentClient) Query() *DocumentQuery {
+	return &DocumentQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDocument},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Document entity by its id.
+func (c *DocumentClient) Get(ctx context.Context, id uint) (*Document, error) {
+	return c.Query().Where(document.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DocumentClient) GetX(ctx context.Context, id uint) *Document {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a Document.
+func (c *DocumentClient) QueryUser(_m *Document) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(document.Table, document.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, document.UserTable, document.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *DocumentClient) Hooks() []Hook {
+	return c.hooks.Document
+}
+
+// Interceptors returns the client interceptors.
+func (c *DocumentClient) Interceptors() []Interceptor {
+	return c.inters.Document
+}
+
+func (c *DocumentClient) mutate(ctx context.Context, m *DocumentMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DocumentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DocumentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DocumentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DocumentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Document mutation op: %q", m.Op())
 	}
 }
 
@@ -841,6 +998,22 @@ func (c *UserClient) QueryExperiences(_m *User) *ExperienceQuery {
 	return query
 }
 
+// QueryDocuments queries the documents edge of a User.
+func (c *UserClient) QueryDocuments(_m *User) *DocumentQuery {
+	query := (&DocumentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(document.Table, document.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.DocumentsTable, user.DocumentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -1034,9 +1207,10 @@ func (c *UserSkillAssociationClient) mutate(ctx context.Context, m *UserSkillAss
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Education, Experience, Skill, User, UserSkillAssociation []ent.Hook
+		Document, Education, Experience, Skill, User, UserSkillAssociation []ent.Hook
 	}
 	inters struct {
-		Education, Experience, Skill, User, UserSkillAssociation []ent.Interceptor
+		Document, Education, Experience, Skill, User,
+		UserSkillAssociation []ent.Interceptor
 	}
 )

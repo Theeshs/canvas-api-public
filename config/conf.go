@@ -23,11 +23,11 @@ var AppConfig *Config
 
 func LoadConfig() {
 	AppConfig = &Config{
-		DBUser:        getEnv("DB_USER", ""),
-		DBPassword:    getEnv("DB_PASSWORD", ""),
+		DBUser:        getEnv("DB_USER", "postgres"),
+		DBPassword:    getEnv("DB_PASSWORD", "mysecretepassword"),
 		DBHost:        getEnv("DB_HOST", "127.0.0.1"),
-		DBPort:        getEnv("DB_PORT", ""),
-		DBName:        getEnv("DB_NAME", ""),
+		DBPort:        getEnv("DB_PORT", "5432"),
+		DBName:        getEnv("DB_NAME", "api.db"),
 		AppPort:       getEnv("APP_PORT", "4000"),
 		OwnerEmail:    getEnv("EMAIL", ""),
 		EmailPassword: getEnv("EMAIL_PASSWORD", ""),

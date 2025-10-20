@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"api/ent/document"
 	"api/ent/education"
 	"api/ent/experience"
 	"api/ent/skill"
@@ -77,6 +78,7 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			document.Table:             document.ValidColumn,
 			education.Table:            education.ValidColumn,
 			experience.Table:           experience.ValidColumn,
 			skill.Table:                skill.ValidColumn,

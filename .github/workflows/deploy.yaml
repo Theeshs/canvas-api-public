@@ -38,6 +38,14 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # - name: Build and push Docker image
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: ./Dockerfile
+      #     push: true
+      #     tags: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/myprofile:latest
+      #     pull: true # <-- always pull base imagest
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -45,24 +53,10 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/myprofile:latest
-          pull: true # <-- always pull base imagest
-
-      # - name: Deploy to server via SSH
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.SERVER_HOST }}
-      #     username: ${{ secrets.SERVER_USER }}
-      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     port: ${{ secrets.SSH_PORT }}
-      #     script: |
-      #       echo "✅ Successfully connected to VPS!"
-      #       docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myprofile:latest
-      #       docker stop myprofile || true
-      #       docker rm myprofile || true
-      #       docker run -d --name myprofile -p 4000:4000 --restart always \
-      #         -e API_KEY=${{ secrets.API_KEY }} \
-      #         ${{ secrets.DOCKERHUB_USERNAME }}/myprofile:latest
-      #       docker system prune -f
+          pull: true
+          no-cache: true
+          build-args: |
+            --progress=plain
 
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@master

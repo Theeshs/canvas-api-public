@@ -45,8 +45,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/myprofile:latest
-          pull: true # <-- always pull base images
-          cache-from: type=registry,ref=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/myprofile:latest
+          pull: true # <-- always pull base imagest
 
       # - name: Deploy to server via SSH
       #   uses: appleboy/ssh-action@master

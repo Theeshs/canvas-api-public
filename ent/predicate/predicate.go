@@ -15,8 +15,14 @@ type Education func(*sql.Selector)
 // Experience is the predicate function for experience builders.
 type Experience func(*sql.Selector)
 
+// Project is the predicate function for project builders.
+type Project func(*sql.Selector)
+
 // Skill is the predicate function for skill builders.
 type Skill func(*sql.Selector)
+
+// TechSctack is the predicate function for techsctack builders.
+type TechSctack func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

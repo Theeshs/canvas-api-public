@@ -4,7 +4,9 @@ package ent
 
 import (
 	"api/ent/predicate"
+	"api/ent/project"
 	"api/ent/skill"
+	"api/ent/techsctack"
 	"api/ent/userskillassociation"
 	"context"
 	"database/sql/driver"
@@ -25,6 +27,8 @@ type SkillQuery struct {
 	inters                   []Interceptor
 	predicates               []predicate.Skill
 	withUserSkillAssociation *UserSkillAssociationQuery
+	withTechstack            *TechSctackQuery
+	withProject              *ProjectQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -76,6 +80,50 @@ func (_q *SkillQuery) QueryUserSkillAssociation() *UserSkillAssociationQuery {
 			sqlgraph.From(skill.Table, skill.FieldID, selector),
 			sqlgraph.To(userskillassociation.Table, userskillassociation.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, skill.UserSkillAssociationTable, skill.UserSkillAssociationColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTechstack chains the current query on the "techstack" edge.
+func (_q *SkillQuery) QueryTechstack() *TechSctackQuery {
+	query := (&TechSctackClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(skill.Table, skill.FieldID, selector),
+			sqlgraph.To(techsctack.Table, techsctack.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, skill.TechstackTable, skill.TechstackColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProject chains the current query on the "project" edge.
+func (_q *SkillQuery) QueryProject() *ProjectQuery {
+	query := (&ProjectClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(skill.Table, skill.FieldID, selector),
+			sqlgraph.To(project.Table, project.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, skill.ProjectTable, skill.ProjectPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -276,6 +324,8 @@ func (_q *SkillQuery) Clone() *SkillQuery {
 		inters:                   append([]Interceptor{}, _q.inters...),
 		predicates:               append([]predicate.Skill{}, _q.predicates...),
 		withUserSkillAssociation: _q.withUserSkillAssociation.Clone(),
+		withTechstack:            _q.withTechstack.Clone(),
+		withProject:              _q.withProject.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -290,6 +340,28 @@ func (_q *SkillQuery) WithUserSkillAssociation(opts ...func(*UserSkillAssociatio
 		opt(query)
 	}
 	_q.withUserSkillAssociation = query
+	return _q
+}
+
+// WithTechstack tells the query-builder to eager-load the nodes that are connected to
+// the "techstack" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SkillQuery) WithTechstack(opts ...func(*TechSctackQuery)) *SkillQuery {
+	query := (&TechSctackClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTechstack = query
+	return _q
+}
+
+// WithProject tells the query-builder to eager-load the nodes that are connected to
+// the "project" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SkillQuery) WithProject(opts ...func(*ProjectQuery)) *SkillQuery {
+	query := (&ProjectClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withProject = query
 	return _q
 }
 
@@ -371,8 +443,10 @@ func (_q *SkillQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Skill,
 	var (
 		nodes       = []*Skill{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [3]bool{
 			_q.withUserSkillAssociation != nil,
+			_q.withTechstack != nil,
+			_q.withProject != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -399,6 +473,20 @@ func (_q *SkillQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Skill,
 			func(n *Skill, e *UserSkillAssociation) {
 				n.Edges.UserSkillAssociation = append(n.Edges.UserSkillAssociation, e)
 			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withTechstack; query != nil {
+		if err := _q.loadTechstack(ctx, query, nodes,
+			func(n *Skill) { n.Edges.Techstack = []*TechSctack{} },
+			func(n *Skill, e *TechSctack) { n.Edges.Techstack = append(n.Edges.Techstack, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withProject; query != nil {
+		if err := _q.loadProject(ctx, query, nodes,
+			func(n *Skill) { n.Edges.Project = []*Project{} },
+			func(n *Skill, e *Project) { n.Edges.Project = append(n.Edges.Project, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -432,6 +520,98 @@ func (_q *SkillQuery) loadUserSkillAssociation(ctx context.Context, query *UserS
 			return fmt.Errorf(`unexpected referenced foreign-key "skill_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
+	}
+	return nil
+}
+func (_q *SkillQuery) loadTechstack(ctx context.Context, query *TechSctackQuery, nodes []*Skill, init func(*Skill), assign func(*Skill, *TechSctack)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uint]*Skill)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.TechSctack(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(skill.TechstackColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.skill_techstack
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "skill_techstack" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "skill_techstack" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *SkillQuery) loadProject(ctx context.Context, query *ProjectQuery, nodes []*Skill, init func(*Skill), assign func(*Skill, *Project)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uint]*Skill)
+	nids := make(map[uint]map[*Skill]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(skill.ProjectTable)
+		s.Join(joinT).On(s.C(project.FieldID), joinT.C(skill.ProjectPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(skill.ProjectPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(skill.ProjectPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := uint(values[0].(*sql.NullInt64).Int64)
+				inValue := uint(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Skill]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Project](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "project" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }

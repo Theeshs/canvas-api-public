@@ -50,6 +50,10 @@ const (
 	EdgeExperiences = "experiences"
 	// EdgeDocuments holds the string denoting the documents edge name in mutations.
 	EdgeDocuments = "documents"
+	// EdgeTechstack holds the string denoting the techstack edge name in mutations.
+	EdgeTechstack = "techstack"
+	// EdgeProject holds the string denoting the project edge name in mutations.
+	EdgeProject = "project"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// EducationsTable is the table that holds the educations relation/edge.
@@ -73,6 +77,20 @@ const (
 	DocumentsInverseTable = "document"
 	// DocumentsColumn is the table column denoting the documents relation/edge.
 	DocumentsColumn = "user_id"
+	// TechstackTable is the table that holds the techstack relation/edge.
+	TechstackTable = "techstack"
+	// TechstackInverseTable is the table name for the TechSctack entity.
+	// It exists in this package in order to avoid circular dependency with the "techsctack" package.
+	TechstackInverseTable = "techstack"
+	// TechstackColumn is the table column denoting the techstack relation/edge.
+	TechstackColumn = "user_techstack"
+	// ProjectTable is the table that holds the project relation/edge.
+	ProjectTable = "project"
+	// ProjectInverseTable is the table name for the Project entity.
+	// It exists in this package in order to avoid circular dependency with the "project" package.
+	ProjectInverseTable = "project"
+	// ProjectColumn is the table column denoting the project relation/edge.
+	ProjectColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -236,6 +254,34 @@ func ByDocuments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newDocumentsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByTechstackCount orders the results by techstack count.
+func ByTechstackCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTechstackStep(), opts...)
+	}
+}
+
+// ByTechstack orders the results by techstack terms.
+func ByTechstack(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTechstackStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByProjectCount orders the results by project count.
+func ByProjectCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProjectStep(), opts...)
+	}
+}
+
+// ByProject orders the results by project terms.
+func ByProject(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProjectStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newEducationsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -255,5 +301,19 @@ func newDocumentsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DocumentsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, DocumentsTable, DocumentsColumn),
+	)
+}
+func newTechstackStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TechstackInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TechstackTable, TechstackColumn),
+	)
+}
+func newProjectStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProjectInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProjectTable, ProjectColumn),
 	)
 }

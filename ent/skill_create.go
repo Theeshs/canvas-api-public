@@ -3,7 +3,9 @@
 package ent
 
 import (
+	"api/ent/project"
 	"api/ent/skill"
+	"api/ent/techsctack"
 	"api/ent/userskillassociation"
 	"context"
 	"errors"
@@ -24,6 +26,20 @@ type SkillCreate struct {
 // SetName sets the "name" field.
 func (_c *SkillCreate) SetName(v string) *SkillCreate {
 	_c.mutation.SetName(v)
+	return _c
+}
+
+// SetIcon sets the "icon" field.
+func (_c *SkillCreate) SetIcon(v string) *SkillCreate {
+	_c.mutation.SetIcon(v)
+	return _c
+}
+
+// SetNillableIcon sets the "icon" field if the given value is not nil.
+func (_c *SkillCreate) SetNillableIcon(v *string) *SkillCreate {
+	if v != nil {
+		_c.SetIcon(*v)
+	}
 	return _c
 }
 
@@ -74,6 +90,36 @@ func (_c *SkillCreate) AddUserSkillAssociation(v ...*UserSkillAssociation) *Skil
 		ids[i] = v[i].ID
 	}
 	return _c.AddUserSkillAssociationIDs(ids...)
+}
+
+// AddTechstackIDs adds the "techstack" edge to the TechSctack entity by IDs.
+func (_c *SkillCreate) AddTechstackIDs(ids ...uint) *SkillCreate {
+	_c.mutation.AddTechstackIDs(ids...)
+	return _c
+}
+
+// AddTechstack adds the "techstack" edges to the TechSctack entity.
+func (_c *SkillCreate) AddTechstack(v ...*TechSctack) *SkillCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTechstackIDs(ids...)
+}
+
+// AddProjectIDs adds the "project" edge to the Project entity by IDs.
+func (_c *SkillCreate) AddProjectIDs(ids ...uint) *SkillCreate {
+	_c.mutation.AddProjectIDs(ids...)
+	return _c
+}
+
+// AddProject adds the "project" edges to the Project entity.
+func (_c *SkillCreate) AddProject(v ...*Project) *SkillCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddProjectIDs(ids...)
 }
 
 // Mutation returns the SkillMutation object of the builder.
@@ -162,6 +208,10 @@ func (_c *SkillCreate) createSpec() (*Skill, *sqlgraph.CreateSpec) {
 		_spec.SetField(skill.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
+	if value, ok := _c.mutation.Icon(); ok {
+		_spec.SetField(skill.FieldIcon, field.TypeString, value)
+		_node.Icon = value
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(skill.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -179,6 +229,38 @@ func (_c *SkillCreate) createSpec() (*Skill, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(userskillassociation.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TechstackIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   skill.TechstackTable,
+			Columns: []string{skill.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ProjectIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   skill.ProjectTable,
+			Columns: skill.ProjectPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
 			},
 		}
 		for _, k := range nodes {

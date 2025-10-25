@@ -6,8 +6,10 @@ import (
 	"api/ent/document"
 	"api/ent/education"
 	"api/ent/experience"
+	"api/ent/project"
 	"api/ent/schema"
 	"api/ent/skill"
+	"api/ent/techsctack"
 	"api/ent/user"
 	"api/ent/userskillassociation"
 	"time"
@@ -51,16 +53,36 @@ func init() {
 	experienceDescUpdatedAt := experienceFields[8].Descriptor()
 	// experience.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	experience.DefaultUpdatedAt = experienceDescUpdatedAt.Default.(func() time.Time)
+	projectFields := schema.Project{}.Fields()
+	_ = projectFields
+	// projectDescCreatedAt is the schema descriptor for created_at field.
+	projectDescCreatedAt := projectFields[5].Descriptor()
+	// project.DefaultCreatedAt holds the default value on creation for the created_at field.
+	project.DefaultCreatedAt = projectDescCreatedAt.Default.(func() time.Time)
+	// projectDescUpdatedAt is the schema descriptor for updated_at field.
+	projectDescUpdatedAt := projectFields[6].Descriptor()
+	// project.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	project.DefaultUpdatedAt = projectDescUpdatedAt.Default.(func() time.Time)
 	skillFields := schema.Skill{}.Fields()
 	_ = skillFields
 	// skillDescCreatedAt is the schema descriptor for created_at field.
-	skillDescCreatedAt := skillFields[2].Descriptor()
+	skillDescCreatedAt := skillFields[3].Descriptor()
 	// skill.DefaultCreatedAt holds the default value on creation for the created_at field.
 	skill.DefaultCreatedAt = skillDescCreatedAt.Default.(func() time.Time)
 	// skillDescUpdatedAt is the schema descriptor for updated_at field.
-	skillDescUpdatedAt := skillFields[3].Descriptor()
+	skillDescUpdatedAt := skillFields[4].Descriptor()
 	// skill.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	skill.DefaultUpdatedAt = skillDescUpdatedAt.Default.(func() time.Time)
+	techsctackFields := schema.TechSctack{}.Fields()
+	_ = techsctackFields
+	// techsctackDescCreatedAt is the schema descriptor for created_at field.
+	techsctackDescCreatedAt := techsctackFields[4].Descriptor()
+	// techsctack.DefaultCreatedAt holds the default value on creation for the created_at field.
+	techsctack.DefaultCreatedAt = techsctackDescCreatedAt.Default.(func() time.Time)
+	// techsctackDescUpdatedAt is the schema descriptor for updated_at field.
+	techsctackDescUpdatedAt := techsctackFields[5].Descriptor()
+	// techsctack.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	techsctack.DefaultUpdatedAt = techsctackDescUpdatedAt.Default.(func() time.Time)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescCreatedAt is the schema descriptor for created_at field.

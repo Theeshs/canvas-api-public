@@ -14,7 +14,9 @@ import (
 	"api/ent/document"
 	"api/ent/education"
 	"api/ent/experience"
+	"api/ent/project"
 	"api/ent/skill"
+	"api/ent/techsctack"
 	"api/ent/user"
 	"api/ent/userskillassociation"
 
@@ -35,8 +37,12 @@ type Client struct {
 	Education *EducationClient
 	// Experience is the client for interacting with the Experience builders.
 	Experience *ExperienceClient
+	// Project is the client for interacting with the Project builders.
+	Project *ProjectClient
 	// Skill is the client for interacting with the Skill builders.
 	Skill *SkillClient
+	// TechSctack is the client for interacting with the TechSctack builders.
+	TechSctack *TechSctackClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// UserSkillAssociation is the client for interacting with the UserSkillAssociation builders.
@@ -55,7 +61,9 @@ func (c *Client) init() {
 	c.Document = NewDocumentClient(c.config)
 	c.Education = NewEducationClient(c.config)
 	c.Experience = NewExperienceClient(c.config)
+	c.Project = NewProjectClient(c.config)
 	c.Skill = NewSkillClient(c.config)
+	c.TechSctack = NewTechSctackClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.UserSkillAssociation = NewUserSkillAssociationClient(c.config)
 }
@@ -153,7 +161,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Document:             NewDocumentClient(cfg),
 		Education:            NewEducationClient(cfg),
 		Experience:           NewExperienceClient(cfg),
+		Project:              NewProjectClient(cfg),
 		Skill:                NewSkillClient(cfg),
+		TechSctack:           NewTechSctackClient(cfg),
 		User:                 NewUserClient(cfg),
 		UserSkillAssociation: NewUserSkillAssociationClient(cfg),
 	}, nil
@@ -178,7 +188,9 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Document:             NewDocumentClient(cfg),
 		Education:            NewEducationClient(cfg),
 		Experience:           NewExperienceClient(cfg),
+		Project:              NewProjectClient(cfg),
 		Skill:                NewSkillClient(cfg),
+		TechSctack:           NewTechSctackClient(cfg),
 		User:                 NewUserClient(cfg),
 		UserSkillAssociation: NewUserSkillAssociationClient(cfg),
 	}, nil
@@ -210,7 +222,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Document, c.Education, c.Experience, c.Skill, c.User, c.UserSkillAssociation,
+		c.Document, c.Education, c.Experience, c.Project, c.Skill, c.TechSctack, c.User,
+		c.UserSkillAssociation,
 	} {
 		n.Use(hooks...)
 	}
@@ -220,7 +233,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Document, c.Education, c.Experience, c.Skill, c.User, c.UserSkillAssociation,
+		c.Document, c.Education, c.Experience, c.Project, c.Skill, c.TechSctack, c.User,
+		c.UserSkillAssociation,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -235,8 +249,12 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Education.mutate(ctx, m)
 	case *ExperienceMutation:
 		return c.Experience.mutate(ctx, m)
+	case *ProjectMutation:
+		return c.Project.mutate(ctx, m)
 	case *SkillMutation:
 		return c.Skill.mutate(ctx, m)
+	case *TechSctackMutation:
+		return c.TechSctack.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	case *UserSkillAssociationMutation:
@@ -709,6 +727,171 @@ func (c *ExperienceClient) mutate(ctx context.Context, m *ExperienceMutation) (V
 	}
 }
 
+// ProjectClient is a client for the Project schema.
+type ProjectClient struct {
+	config
+}
+
+// NewProjectClient returns a client for the Project from the given config.
+func NewProjectClient(c config) *ProjectClient {
+	return &ProjectClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `project.Hooks(f(g(h())))`.
+func (c *ProjectClient) Use(hooks ...Hook) {
+	c.hooks.Project = append(c.hooks.Project, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `project.Intercept(f(g(h())))`.
+func (c *ProjectClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Project = append(c.inters.Project, interceptors...)
+}
+
+// Create returns a builder for creating a Project entity.
+func (c *ProjectClient) Create() *ProjectCreate {
+	mutation := newProjectMutation(c.config, OpCreate)
+	return &ProjectCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Project entities.
+func (c *ProjectClient) CreateBulk(builders ...*ProjectCreate) *ProjectCreateBulk {
+	return &ProjectCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProjectClient) MapCreateBulk(slice any, setFunc func(*ProjectCreate, int)) *ProjectCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProjectCreateBulk{err: fmt.Errorf("calling to ProjectClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProjectCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProjectCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Project.
+func (c *ProjectClient) Update() *ProjectUpdate {
+	mutation := newProjectMutation(c.config, OpUpdate)
+	return &ProjectUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProjectClient) UpdateOne(_m *Project) *ProjectUpdateOne {
+	mutation := newProjectMutation(c.config, OpUpdateOne, withProject(_m))
+	return &ProjectUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProjectClient) UpdateOneID(id uint) *ProjectUpdateOne {
+	mutation := newProjectMutation(c.config, OpUpdateOne, withProjectID(id))
+	return &ProjectUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Project.
+func (c *ProjectClient) Delete() *ProjectDelete {
+	mutation := newProjectMutation(c.config, OpDelete)
+	return &ProjectDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProjectClient) DeleteOne(_m *Project) *ProjectDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProjectClient) DeleteOneID(id uint) *ProjectDeleteOne {
+	builder := c.Delete().Where(project.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProjectDeleteOne{builder}
+}
+
+// Query returns a query builder for Project.
+func (c *ProjectClient) Query() *ProjectQuery {
+	return &ProjectQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProject},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Project entity by its id.
+func (c *ProjectClient) Get(ctx context.Context, id uint) (*Project, error) {
+	return c.Query().Where(project.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProjectClient) GetX(ctx context.Context, id uint) *Project {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a Project.
+func (c *ProjectClient) QueryUser(_m *Project) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(project.Table, project.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, project.UserTable, project.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySkill queries the skill edge of a Project.
+func (c *ProjectClient) QuerySkill(_m *Project) *SkillQuery {
+	query := (&SkillClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(project.Table, project.FieldID, id),
+			sqlgraph.To(skill.Table, skill.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, project.SkillTable, project.SkillPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProjectClient) Hooks() []Hook {
+	return c.hooks.Project
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProjectClient) Interceptors() []Interceptor {
+	return c.inters.Project
+}
+
+func (c *ProjectClient) mutate(ctx context.Context, m *ProjectMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProjectCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProjectUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProjectUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProjectDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Project mutation op: %q", m.Op())
+	}
+}
+
 // SkillClient is a client for the Skill schema.
 type SkillClient struct {
 	config
@@ -833,6 +1016,38 @@ func (c *SkillClient) QueryUserSkillAssociation(_m *Skill) *UserSkillAssociation
 	return query
 }
 
+// QueryTechstack queries the techstack edge of a Skill.
+func (c *SkillClient) QueryTechstack(_m *Skill) *TechSctackQuery {
+	query := (&TechSctackClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(skill.Table, skill.FieldID, id),
+			sqlgraph.To(techsctack.Table, techsctack.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, skill.TechstackTable, skill.TechstackColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProject queries the project edge of a Skill.
+func (c *SkillClient) QueryProject(_m *Skill) *ProjectQuery {
+	query := (&ProjectClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(skill.Table, skill.FieldID, id),
+			sqlgraph.To(project.Table, project.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, skill.ProjectTable, skill.ProjectPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *SkillClient) Hooks() []Hook {
 	return c.hooks.Skill
@@ -855,6 +1070,171 @@ func (c *SkillClient) mutate(ctx context.Context, m *SkillMutation) (Value, erro
 		return (&SkillDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Skill mutation op: %q", m.Op())
+	}
+}
+
+// TechSctackClient is a client for the TechSctack schema.
+type TechSctackClient struct {
+	config
+}
+
+// NewTechSctackClient returns a client for the TechSctack from the given config.
+func NewTechSctackClient(c config) *TechSctackClient {
+	return &TechSctackClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `techsctack.Hooks(f(g(h())))`.
+func (c *TechSctackClient) Use(hooks ...Hook) {
+	c.hooks.TechSctack = append(c.hooks.TechSctack, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `techsctack.Intercept(f(g(h())))`.
+func (c *TechSctackClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TechSctack = append(c.inters.TechSctack, interceptors...)
+}
+
+// Create returns a builder for creating a TechSctack entity.
+func (c *TechSctackClient) Create() *TechSctackCreate {
+	mutation := newTechSctackMutation(c.config, OpCreate)
+	return &TechSctackCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TechSctack entities.
+func (c *TechSctackClient) CreateBulk(builders ...*TechSctackCreate) *TechSctackCreateBulk {
+	return &TechSctackCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TechSctackClient) MapCreateBulk(slice any, setFunc func(*TechSctackCreate, int)) *TechSctackCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TechSctackCreateBulk{err: fmt.Errorf("calling to TechSctackClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TechSctackCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TechSctackCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TechSctack.
+func (c *TechSctackClient) Update() *TechSctackUpdate {
+	mutation := newTechSctackMutation(c.config, OpUpdate)
+	return &TechSctackUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TechSctackClient) UpdateOne(_m *TechSctack) *TechSctackUpdateOne {
+	mutation := newTechSctackMutation(c.config, OpUpdateOne, withTechSctack(_m))
+	return &TechSctackUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TechSctackClient) UpdateOneID(id uint) *TechSctackUpdateOne {
+	mutation := newTechSctackMutation(c.config, OpUpdateOne, withTechSctackID(id))
+	return &TechSctackUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TechSctack.
+func (c *TechSctackClient) Delete() *TechSctackDelete {
+	mutation := newTechSctackMutation(c.config, OpDelete)
+	return &TechSctackDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TechSctackClient) DeleteOne(_m *TechSctack) *TechSctackDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TechSctackClient) DeleteOneID(id uint) *TechSctackDeleteOne {
+	builder := c.Delete().Where(techsctack.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TechSctackDeleteOne{builder}
+}
+
+// Query returns a query builder for TechSctack.
+func (c *TechSctackClient) Query() *TechSctackQuery {
+	return &TechSctackQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTechSctack},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TechSctack entity by its id.
+func (c *TechSctackClient) Get(ctx context.Context, id uint) (*TechSctack, error) {
+	return c.Query().Where(techsctack.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TechSctackClient) GetX(ctx context.Context, id uint) *TechSctack {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QuerySkill queries the skill edge of a TechSctack.
+func (c *TechSctackClient) QuerySkill(_m *TechSctack) *SkillQuery {
+	query := (&SkillClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(techsctack.Table, techsctack.FieldID, id),
+			sqlgraph.To(skill.Table, skill.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, techsctack.SkillTable, techsctack.SkillColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUser queries the user edge of a TechSctack.
+func (c *TechSctackClient) QueryUser(_m *TechSctack) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(techsctack.Table, techsctack.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, techsctack.UserTable, techsctack.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TechSctackClient) Hooks() []Hook {
+	return c.hooks.TechSctack
+}
+
+// Interceptors returns the client interceptors.
+func (c *TechSctackClient) Interceptors() []Interceptor {
+	return c.inters.TechSctack
+}
+
+func (c *TechSctackClient) mutate(ctx context.Context, m *TechSctackMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TechSctackCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TechSctackUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TechSctackUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TechSctackDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TechSctack mutation op: %q", m.Op())
 	}
 }
 
@@ -1007,6 +1387,38 @@ func (c *UserClient) QueryDocuments(_m *User) *DocumentQuery {
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(document.Table, document.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.DocumentsTable, user.DocumentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTechstack queries the techstack edge of a User.
+func (c *UserClient) QueryTechstack(_m *User) *TechSctackQuery {
+	query := (&TechSctackClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(techsctack.Table, techsctack.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.TechstackTable, user.TechstackColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProject queries the project edge of a User.
+func (c *UserClient) QueryProject(_m *User) *ProjectQuery {
+	query := (&ProjectClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(project.Table, project.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ProjectTable, user.ProjectColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1207,10 +1619,11 @@ func (c *UserSkillAssociationClient) mutate(ctx context.Context, m *UserSkillAss
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Document, Education, Experience, Skill, User, UserSkillAssociation []ent.Hook
+		Document, Education, Experience, Project, Skill, TechSctack, User,
+		UserSkillAssociation []ent.Hook
 	}
 	inters struct {
-		Document, Education, Experience, Skill, User,
+		Document, Education, Experience, Project, Skill, TechSctack, User,
 		UserSkillAssociation []ent.Interceptor
 	}
 )

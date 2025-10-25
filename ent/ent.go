@@ -6,7 +6,9 @@ import (
 	"api/ent/document"
 	"api/ent/education"
 	"api/ent/experience"
+	"api/ent/project"
 	"api/ent/skill"
+	"api/ent/techsctack"
 	"api/ent/user"
 	"api/ent/userskillassociation"
 	"context"
@@ -81,7 +83,9 @@ func checkColumn(t, c string) error {
 			document.Table:             document.ValidColumn,
 			education.Table:            education.ValidColumn,
 			experience.Table:           experience.ValidColumn,
+			project.Table:              project.ValidColumn,
 			skill.Table:                skill.ValidColumn,
+			techsctack.Table:           techsctack.ValidColumn,
 			user.Table:                 user.ValidColumn,
 			userskillassociation.Table: userskillassociation.ValidColumn,
 		})

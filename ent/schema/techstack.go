@@ -10,31 +10,37 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-type Skill struct {
+type TechSctack struct {
 	ent.Schema
 }
 
-func (Skill) Fields() []ent.Field {
+func (TechSctack) Fields() []ent.Field {
 	return []ent.Field{
 		field.Uint("id").SchemaType(map[string]string{"postgres": "serial"}),
-		field.String("name").Unique(),
-		field.String("icon").Optional(),
+		field.String("name"),
+		field.Uint("skill_id"),
+		field.Uint("user_id"),
 		field.Time("created_at").Optional().Default(time.Now),
 		field.Time("updated_at").Optional().Default(time.Now),
 	}
 }
 
-func (Skill) Edges() []ent.Edge {
+func (TechSctack) Edges() []ent.Edge {
 	return []ent.Edge{
-		// Skill can be associated with multiple UserSkillAssociations
-		edge.To("user_skill_association", UserSkillAssociation.Type),
-		edge.To("techstack", TechSctack.Type),
-		edge.To("project", Project.Type),
+		edge.To("skill", Skill.Type).
+			Required().
+			Unique().
+			Field("skill_id"),
+
+		edge.To("user", User.Type).
+			Required().
+			Unique().
+			Field("user_id"),
 	}
 }
 
-func (Skill) Annotations() []schema.Annotation {
+func (TechSctack) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "skill"},
+		entsql.Annotation{Table: "techstack"},
 	}
 }

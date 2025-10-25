@@ -44,6 +44,18 @@ func (f ExperienceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ExperienceMutation", m)
 }
 
+// The ProjectFunc type is an adapter to allow the use of ordinary
+// function as Project mutator.
+type ProjectFunc func(context.Context, *ent.ProjectMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProjectFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProjectMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProjectMutation", m)
+}
+
 // The SkillFunc type is an adapter to allow the use of ordinary
 // function as Skill mutator.
 type SkillFunc func(context.Context, *ent.SkillMutation) (ent.Value, error)
@@ -54,6 +66,18 @@ func (f SkillFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SkillMutation", m)
+}
+
+// The TechSctackFunc type is an adapter to allow the use of ordinary
+// function as TechSctack mutator.
+type TechSctackFunc func(context.Context, *ent.TechSctackMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TechSctackFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TechSctackMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TechSctackMutation", m)
 }
 
 // The UserFunc type is an adapter to allow the use of ordinary

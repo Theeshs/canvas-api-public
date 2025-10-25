@@ -5,6 +5,7 @@ import (
 	"api/ent/user"
 	"api/services/educations"
 	"api/services/experiences"
+	"api/services/projects"
 	"context"
 	"fmt"
 	"sync"
@@ -18,13 +19,14 @@ func GetPortfolioData(client *ent.Client) (UserDetails, error) {
 	dobStr := user.Dob.Format("2006-01-02")
 
 	var (
-		exp        []experiences.ExperienceWithSkills
-		edu        []educations.Education
-		err1, err2 error
-		wg         sync.WaitGroup
+		exp              []experiences.ExperienceWithSkills
+		edu              []educations.Education
+		pro              []projects.ProjectResponse
+		err1, err2, err3 error
+		wg               sync.WaitGroup
 	)
 
-	wg.Add(2)
+	wg.Add(3)
 
 	go func() {
 		defer wg.Done()
@@ -36,10 +38,15 @@ func GetPortfolioData(client *ent.Client) (UserDetails, error) {
 		edu, err2 = educations.GenUserEducations(user.ID, client)
 	}()
 
+	go func() {
+		defer wg.Done()
+		pro, err3 = projects.NewProjectHandler(client).GenProjectList(user.ID)
+	}()
+
 	wg.Wait()
 
 	if err1 != nil || err2 != nil {
-		combinedErr := fmt.Errorf("experience error: %v, education error: %v", err1, err2)
+		combinedErr := fmt.Errorf("experience error: %v, education error: %v, project error: %v", err1, err2, err3)
 		return UserDetails{}, combinedErr
 	}
 
@@ -58,6 +65,7 @@ func GetPortfolioData(client *ent.Client) (UserDetails, error) {
 		Nationality:        &user.Nationality,
 		Experiences:        exp,
 		Education:          edu,
+		Projects:           pro,
 	}
 
 	return response, nil

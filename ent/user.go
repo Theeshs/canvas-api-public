@@ -61,9 +61,13 @@ type UserEdges struct {
 	Experiences []*Experience `json:"experiences,omitempty"`
 	// Documents holds the value of the documents edge.
 	Documents []*Document `json:"documents,omitempty"`
+	// Techstack holds the value of the techstack edge.
+	Techstack []*TechSctack `json:"techstack,omitempty"`
+	// Project holds the value of the project edge.
+	Project []*Project `json:"project,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [5]bool
 }
 
 // EducationsOrErr returns the Educations value or an error if the edge
@@ -91,6 +95,24 @@ func (e UserEdges) DocumentsOrErr() ([]*Document, error) {
 		return e.Documents, nil
 	}
 	return nil, &NotLoadedError{edge: "documents"}
+}
+
+// TechstackOrErr returns the Techstack value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) TechstackOrErr() ([]*TechSctack, error) {
+	if e.loadedTypes[3] {
+		return e.Techstack, nil
+	}
+	return nil, &NotLoadedError{edge: "techstack"}
+}
+
+// ProjectOrErr returns the Project value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ProjectOrErr() ([]*Project, error) {
+	if e.loadedTypes[4] {
+		return e.Project, nil
+	}
+	return nil, &NotLoadedError{edge: "project"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -241,6 +263,16 @@ func (_m *User) QueryExperiences() *ExperienceQuery {
 // QueryDocuments queries the "documents" edge of the User entity.
 func (_m *User) QueryDocuments() *DocumentQuery {
 	return NewUserClient(_m.config).QueryDocuments(_m)
+}
+
+// QueryTechstack queries the "techstack" edge of the User entity.
+func (_m *User) QueryTechstack() *TechSctackQuery {
+	return NewUserClient(_m.config).QueryTechstack(_m)
+}
+
+// QueryProject queries the "project" edge of the User entity.
+func (_m *User) QueryProject() *ProjectQuery {
+	return NewUserClient(_m.config).QueryProject(_m)
 }
 
 // Update returns a builder for updating this User.

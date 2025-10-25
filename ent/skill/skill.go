@@ -16,12 +16,18 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldIcon holds the string denoting the icon field in the database.
+	FieldIcon = "icon"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
 	// EdgeUserSkillAssociation holds the string denoting the user_skill_association edge name in mutations.
 	EdgeUserSkillAssociation = "user_skill_association"
+	// EdgeTechstack holds the string denoting the techstack edge name in mutations.
+	EdgeTechstack = "techstack"
+	// EdgeProject holds the string denoting the project edge name in mutations.
+	EdgeProject = "project"
 	// Table holds the table name of the skill in the database.
 	Table = "skill"
 	// UserSkillAssociationTable is the table that holds the user_skill_association relation/edge.
@@ -31,15 +37,34 @@ const (
 	UserSkillAssociationInverseTable = "user_skill_association"
 	// UserSkillAssociationColumn is the table column denoting the user_skill_association relation/edge.
 	UserSkillAssociationColumn = "skill_id"
+	// TechstackTable is the table that holds the techstack relation/edge.
+	TechstackTable = "techstack"
+	// TechstackInverseTable is the table name for the TechSctack entity.
+	// It exists in this package in order to avoid circular dependency with the "techsctack" package.
+	TechstackInverseTable = "techstack"
+	// TechstackColumn is the table column denoting the techstack relation/edge.
+	TechstackColumn = "skill_techstack"
+	// ProjectTable is the table that holds the project relation/edge. The primary key declared below.
+	ProjectTable = "skill_project"
+	// ProjectInverseTable is the table name for the Project entity.
+	// It exists in this package in order to avoid circular dependency with the "project" package.
+	ProjectInverseTable = "project"
 )
 
 // Columns holds all SQL columns for skill fields.
 var Columns = []string{
 	FieldID,
 	FieldName,
+	FieldIcon,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
+
+var (
+	// ProjectPrimaryKey and ProjectColumn2 are the table columns denoting the
+	// primary key for the project relation (M2M).
+	ProjectPrimaryKey = []string{"skill_id", "project_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -71,6 +96,11 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
+// ByIcon orders the results by the icon field.
+func ByIcon(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIcon, opts...).ToFunc()
+}
+
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
@@ -94,10 +124,52 @@ func ByUserSkillAssociation(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOpt
 		sqlgraph.OrderByNeighborTerms(s, newUserSkillAssociationStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByTechstackCount orders the results by techstack count.
+func ByTechstackCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTechstackStep(), opts...)
+	}
+}
+
+// ByTechstack orders the results by techstack terms.
+func ByTechstack(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTechstackStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByProjectCount orders the results by project count.
+func ByProjectCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProjectStep(), opts...)
+	}
+}
+
+// ByProject orders the results by project terms.
+func ByProject(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProjectStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newUserSkillAssociationStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserSkillAssociationInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UserSkillAssociationTable, UserSkillAssociationColumn),
+	)
+}
+func newTechstackStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TechstackInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TechstackTable, TechstackColumn),
+	)
+}
+func newProjectStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProjectInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, ProjectTable, ProjectPrimaryKey...),
 	)
 }

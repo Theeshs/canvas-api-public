@@ -92,10 +92,35 @@ var (
 			},
 		},
 	}
+	// ProjectColumns holds the columns for the "project" table.
+	ProjectColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true, SchemaType: map[string]string{"postgres": "serial"}},
+		{Name: "project_name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "url", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "user_id", Type: field.TypeUint, SchemaType: map[string]string{"postgres": "serial"}},
+	}
+	// ProjectTable holds the schema information for the "project" table.
+	ProjectTable = &schema.Table{
+		Name:       "project",
+		Columns:    ProjectColumns,
+		PrimaryKey: []*schema.Column{ProjectColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "project_users_project",
+				Columns:    []*schema.Column{ProjectColumns[6]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// SkillColumns holds the columns for the "skill" table.
 	SkillColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint, Increment: true, SchemaType: map[string]string{"postgres": "serial"}},
 		{Name: "name", Type: field.TypeString, Unique: true},
+		{Name: "icon", Type: field.TypeString, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime, Nullable: true},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 	}
@@ -104,6 +129,49 @@ var (
 		Name:       "skill",
 		Columns:    SkillColumns,
 		PrimaryKey: []*schema.Column{SkillColumns[0]},
+	}
+	// TechstackColumns holds the columns for the "techstack" table.
+	TechstackColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true, SchemaType: map[string]string{"postgres": "serial"}},
+		{Name: "name", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "skill_techstack", Type: field.TypeUint, Nullable: true, SchemaType: map[string]string{"postgres": "serial"}},
+		{Name: "skill_id", Type: field.TypeUint, SchemaType: map[string]string{"postgres": "serial"}},
+		{Name: "user_id", Type: field.TypeUint, SchemaType: map[string]string{"postgres": "serial"}},
+		{Name: "user_techstack", Type: field.TypeUint, Nullable: true, SchemaType: map[string]string{"postgres": "serial"}},
+	}
+	// TechstackTable holds the schema information for the "techstack" table.
+	TechstackTable = &schema.Table{
+		Name:       "techstack",
+		Columns:    TechstackColumns,
+		PrimaryKey: []*schema.Column{TechstackColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "techstack_skill_techstack",
+				Columns:    []*schema.Column{TechstackColumns[4]},
+				RefColumns: []*schema.Column{SkillColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "techstack_skill_skill",
+				Columns:    []*schema.Column{TechstackColumns[5]},
+				RefColumns: []*schema.Column{SkillColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "techstack_users_user",
+				Columns:    []*schema.Column{TechstackColumns[6]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "techstack_users_techstack",
+				Columns:    []*schema.Column{TechstackColumns[7]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -166,14 +234,42 @@ var (
 			},
 		},
 	}
+	// SkillProjectColumns holds the columns for the "skill_project" table.
+	SkillProjectColumns = []*schema.Column{
+		{Name: "skill_id", Type: field.TypeUint, SchemaType: map[string]string{"postgres": "serial"}},
+		{Name: "project_id", Type: field.TypeUint, SchemaType: map[string]string{"postgres": "serial"}},
+	}
+	// SkillProjectTable holds the schema information for the "skill_project" table.
+	SkillProjectTable = &schema.Table{
+		Name:       "skill_project",
+		Columns:    SkillProjectColumns,
+		PrimaryKey: []*schema.Column{SkillProjectColumns[0], SkillProjectColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "skill_project_skill_id",
+				Columns:    []*schema.Column{SkillProjectColumns[0]},
+				RefColumns: []*schema.Column{SkillColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "skill_project_project_id",
+				Columns:    []*schema.Column{SkillProjectColumns[1]},
+				RefColumns: []*schema.Column{ProjectColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		DocumentTable,
 		EducationTable,
 		ExperienceTable,
+		ProjectTable,
 		SkillTable,
+		TechstackTable,
 		UsersTable,
 		UserSkillAssociationTable,
+		SkillProjectTable,
 	}
 )
 
@@ -190,12 +286,25 @@ func init() {
 	ExperienceTable.Annotation = &entsql.Annotation{
 		Table: "experience",
 	}
+	ProjectTable.ForeignKeys[0].RefTable = UsersTable
+	ProjectTable.Annotation = &entsql.Annotation{
+		Table: "project",
+	}
 	SkillTable.Annotation = &entsql.Annotation{
 		Table: "skill",
+	}
+	TechstackTable.ForeignKeys[0].RefTable = SkillTable
+	TechstackTable.ForeignKeys[1].RefTable = SkillTable
+	TechstackTable.ForeignKeys[2].RefTable = UsersTable
+	TechstackTable.ForeignKeys[3].RefTable = UsersTable
+	TechstackTable.Annotation = &entsql.Annotation{
+		Table: "techstack",
 	}
 	UserSkillAssociationTable.ForeignKeys[0].RefTable = ExperienceTable
 	UserSkillAssociationTable.ForeignKeys[1].RefTable = SkillTable
 	UserSkillAssociationTable.Annotation = &entsql.Annotation{
 		Table: "user_skill_association",
 	}
+	SkillProjectTable.ForeignKeys[0].RefTable = SkillTable
+	SkillProjectTable.ForeignKeys[1].RefTable = ProjectTable
 }

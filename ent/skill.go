@@ -19,6 +19,8 @@ type Skill struct {
 	ID uint `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Icon holds the value of the "icon" field.
+	Icon string `json:"icon,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -33,9 +35,13 @@ type Skill struct {
 type SkillEdges struct {
 	// UserSkillAssociation holds the value of the user_skill_association edge.
 	UserSkillAssociation []*UserSkillAssociation `json:"user_skill_association,omitempty"`
+	// Techstack holds the value of the techstack edge.
+	Techstack []*TechSctack `json:"techstack,omitempty"`
+	// Project holds the value of the project edge.
+	Project []*Project `json:"project,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [3]bool
 }
 
 // UserSkillAssociationOrErr returns the UserSkillAssociation value or an error if the edge
@@ -47,6 +53,24 @@ func (e SkillEdges) UserSkillAssociationOrErr() ([]*UserSkillAssociation, error)
 	return nil, &NotLoadedError{edge: "user_skill_association"}
 }
 
+// TechstackOrErr returns the Techstack value or an error if the edge
+// was not loaded in eager-loading.
+func (e SkillEdges) TechstackOrErr() ([]*TechSctack, error) {
+	if e.loadedTypes[1] {
+		return e.Techstack, nil
+	}
+	return nil, &NotLoadedError{edge: "techstack"}
+}
+
+// ProjectOrErr returns the Project value or an error if the edge
+// was not loaded in eager-loading.
+func (e SkillEdges) ProjectOrErr() ([]*Project, error) {
+	if e.loadedTypes[2] {
+		return e.Project, nil
+	}
+	return nil, &NotLoadedError{edge: "project"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Skill) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -54,7 +78,7 @@ func (*Skill) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case skill.FieldID:
 			values[i] = new(sql.NullInt64)
-		case skill.FieldName:
+		case skill.FieldName, skill.FieldIcon:
 			values[i] = new(sql.NullString)
 		case skill.FieldCreatedAt, skill.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -84,6 +108,12 @@ func (_m *Skill) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				_m.Name = value.String
+			}
+		case skill.FieldIcon:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field icon", values[i])
+			} else if value.Valid {
+				_m.Icon = value.String
 			}
 		case skill.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -115,6 +145,16 @@ func (_m *Skill) QueryUserSkillAssociation() *UserSkillAssociationQuery {
 	return NewSkillClient(_m.config).QueryUserSkillAssociation(_m)
 }
 
+// QueryTechstack queries the "techstack" edge of the Skill entity.
+func (_m *Skill) QueryTechstack() *TechSctackQuery {
+	return NewSkillClient(_m.config).QueryTechstack(_m)
+}
+
+// QueryProject queries the "project" edge of the Skill entity.
+func (_m *Skill) QueryProject() *ProjectQuery {
+	return NewSkillClient(_m.config).QueryProject(_m)
+}
+
 // Update returns a builder for updating this Skill.
 // Note that you need to call Skill.Unwrap() before calling this method if this Skill
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -140,6 +180,9 @@ func (_m *Skill) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	builder.WriteString("icon=")
+	builder.WriteString(_m.Icon)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

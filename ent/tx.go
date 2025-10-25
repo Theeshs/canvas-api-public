@@ -18,8 +18,12 @@ type Tx struct {
 	Education *EducationClient
 	// Experience is the client for interacting with the Experience builders.
 	Experience *ExperienceClient
+	// Project is the client for interacting with the Project builders.
+	Project *ProjectClient
 	// Skill is the client for interacting with the Skill builders.
 	Skill *SkillClient
+	// TechSctack is the client for interacting with the TechSctack builders.
+	TechSctack *TechSctackClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// UserSkillAssociation is the client for interacting with the UserSkillAssociation builders.
@@ -158,7 +162,9 @@ func (tx *Tx) init() {
 	tx.Document = NewDocumentClient(tx.config)
 	tx.Education = NewEducationClient(tx.config)
 	tx.Experience = NewExperienceClient(tx.config)
+	tx.Project = NewProjectClient(tx.config)
 	tx.Skill = NewSkillClient(tx.config)
+	tx.TechSctack = NewTechSctackClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.UserSkillAssociation = NewUserSkillAssociationClient(tx.config)
 }

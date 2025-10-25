@@ -41,5 +41,7 @@ func (User) Edges() []ent.Edge {
 		edge.To("educations", Education.Type),
 		edge.To("experiences", Experience.Type),
 		edge.To("documents", Document.Type),
+		edge.To("techstack", TechSctack.Type),
+		edge.To("project", Project.Type),
 	}
 }

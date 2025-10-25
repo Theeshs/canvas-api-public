@@ -7,6 +7,8 @@ import (
 	"api/ent/education"
 	"api/ent/experience"
 	"api/ent/predicate"
+	"api/ent/project"
+	"api/ent/techsctack"
 	"api/ent/user"
 	"context"
 	"errors"
@@ -365,6 +367,36 @@ func (_u *UserUpdate) AddDocuments(v ...*Document) *UserUpdate {
 	return _u.AddDocumentIDs(ids...)
 }
 
+// AddTechstackIDs adds the "techstack" edge to the TechSctack entity by IDs.
+func (_u *UserUpdate) AddTechstackIDs(ids ...uint) *UserUpdate {
+	_u.mutation.AddTechstackIDs(ids...)
+	return _u
+}
+
+// AddTechstack adds the "techstack" edges to the TechSctack entity.
+func (_u *UserUpdate) AddTechstack(v ...*TechSctack) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTechstackIDs(ids...)
+}
+
+// AddProjectIDs adds the "project" edge to the Project entity by IDs.
+func (_u *UserUpdate) AddProjectIDs(ids ...uint) *UserUpdate {
+	_u.mutation.AddProjectIDs(ids...)
+	return _u
+}
+
+// AddProject adds the "project" edges to the Project entity.
+func (_u *UserUpdate) AddProject(v ...*Project) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddProjectIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
@@ -431,6 +463,48 @@ func (_u *UserUpdate) RemoveDocuments(v ...*Document) *UserUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveDocumentIDs(ids...)
+}
+
+// ClearTechstack clears all "techstack" edges to the TechSctack entity.
+func (_u *UserUpdate) ClearTechstack() *UserUpdate {
+	_u.mutation.ClearTechstack()
+	return _u
+}
+
+// RemoveTechstackIDs removes the "techstack" edge to TechSctack entities by IDs.
+func (_u *UserUpdate) RemoveTechstackIDs(ids ...uint) *UserUpdate {
+	_u.mutation.RemoveTechstackIDs(ids...)
+	return _u
+}
+
+// RemoveTechstack removes "techstack" edges to TechSctack entities.
+func (_u *UserUpdate) RemoveTechstack(v ...*TechSctack) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTechstackIDs(ids...)
+}
+
+// ClearProject clears all "project" edges to the Project entity.
+func (_u *UserUpdate) ClearProject() *UserUpdate {
+	_u.mutation.ClearProject()
+	return _u
+}
+
+// RemoveProjectIDs removes the "project" edge to Project entities by IDs.
+func (_u *UserUpdate) RemoveProjectIDs(ids ...uint) *UserUpdate {
+	_u.mutation.RemoveProjectIDs(ids...)
+	return _u
+}
+
+// RemoveProject removes "project" edges to Project entities.
+func (_u *UserUpdate) RemoveProject(v ...*Project) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveProjectIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -681,6 +755,96 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(document.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TechstackCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TechstackTable,
+			Columns: []string{user.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTechstackIDs(); len(nodes) > 0 && !_u.mutation.TechstackCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TechstackTable,
+			Columns: []string{user.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TechstackIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TechstackTable,
+			Columns: []string{user.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ProjectCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ProjectTable,
+			Columns: []string{user.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedProjectIDs(); len(nodes) > 0 && !_u.mutation.ProjectCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ProjectTable,
+			Columns: []string{user.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ProjectIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ProjectTable,
+			Columns: []string{user.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
 			},
 		}
 		for _, k := range nodes {
@@ -1042,6 +1206,36 @@ func (_u *UserUpdateOne) AddDocuments(v ...*Document) *UserUpdateOne {
 	return _u.AddDocumentIDs(ids...)
 }
 
+// AddTechstackIDs adds the "techstack" edge to the TechSctack entity by IDs.
+func (_u *UserUpdateOne) AddTechstackIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.AddTechstackIDs(ids...)
+	return _u
+}
+
+// AddTechstack adds the "techstack" edges to the TechSctack entity.
+func (_u *UserUpdateOne) AddTechstack(v ...*TechSctack) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTechstackIDs(ids...)
+}
+
+// AddProjectIDs adds the "project" edge to the Project entity by IDs.
+func (_u *UserUpdateOne) AddProjectIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.AddProjectIDs(ids...)
+	return _u
+}
+
+// AddProject adds the "project" edges to the Project entity.
+func (_u *UserUpdateOne) AddProject(v ...*Project) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddProjectIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
@@ -1108,6 +1302,48 @@ func (_u *UserUpdateOne) RemoveDocuments(v ...*Document) *UserUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveDocumentIDs(ids...)
+}
+
+// ClearTechstack clears all "techstack" edges to the TechSctack entity.
+func (_u *UserUpdateOne) ClearTechstack() *UserUpdateOne {
+	_u.mutation.ClearTechstack()
+	return _u
+}
+
+// RemoveTechstackIDs removes the "techstack" edge to TechSctack entities by IDs.
+func (_u *UserUpdateOne) RemoveTechstackIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.RemoveTechstackIDs(ids...)
+	return _u
+}
+
+// RemoveTechstack removes "techstack" edges to TechSctack entities.
+func (_u *UserUpdateOne) RemoveTechstack(v ...*TechSctack) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTechstackIDs(ids...)
+}
+
+// ClearProject clears all "project" edges to the Project entity.
+func (_u *UserUpdateOne) ClearProject() *UserUpdateOne {
+	_u.mutation.ClearProject()
+	return _u
+}
+
+// RemoveProjectIDs removes the "project" edge to Project entities by IDs.
+func (_u *UserUpdateOne) RemoveProjectIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.RemoveProjectIDs(ids...)
+	return _u
+}
+
+// RemoveProject removes "project" edges to Project entities.
+func (_u *UserUpdateOne) RemoveProject(v ...*Project) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveProjectIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -1388,6 +1624,96 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(document.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TechstackCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TechstackTable,
+			Columns: []string{user.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTechstackIDs(); len(nodes) > 0 && !_u.mutation.TechstackCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TechstackTable,
+			Columns: []string{user.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TechstackIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TechstackTable,
+			Columns: []string{user.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ProjectCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ProjectTable,
+			Columns: []string{user.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedProjectIDs(); len(nodes) > 0 && !_u.mutation.ProjectCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ProjectTable,
+			Columns: []string{user.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ProjectIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ProjectTable,
+			Columns: []string{user.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
 			},
 		}
 		for _, k := range nodes {

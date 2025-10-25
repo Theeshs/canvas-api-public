@@ -4,7 +4,9 @@ package ent
 
 import (
 	"api/ent/predicate"
+	"api/ent/project"
 	"api/ent/skill"
+	"api/ent/techsctack"
 	"api/ent/userskillassociation"
 	"context"
 	"errors"
@@ -40,6 +42,26 @@ func (_u *SkillUpdate) SetNillableName(v *string) *SkillUpdate {
 	if v != nil {
 		_u.SetName(*v)
 	}
+	return _u
+}
+
+// SetIcon sets the "icon" field.
+func (_u *SkillUpdate) SetIcon(v string) *SkillUpdate {
+	_u.mutation.SetIcon(v)
+	return _u
+}
+
+// SetNillableIcon sets the "icon" field if the given value is not nil.
+func (_u *SkillUpdate) SetNillableIcon(v *string) *SkillUpdate {
+	if v != nil {
+		_u.SetIcon(*v)
+	}
+	return _u
+}
+
+// ClearIcon clears the value of the "icon" field.
+func (_u *SkillUpdate) ClearIcon() *SkillUpdate {
+	_u.mutation.ClearIcon()
 	return _u
 }
 
@@ -98,6 +120,36 @@ func (_u *SkillUpdate) AddUserSkillAssociation(v ...*UserSkillAssociation) *Skil
 	return _u.AddUserSkillAssociationIDs(ids...)
 }
 
+// AddTechstackIDs adds the "techstack" edge to the TechSctack entity by IDs.
+func (_u *SkillUpdate) AddTechstackIDs(ids ...uint) *SkillUpdate {
+	_u.mutation.AddTechstackIDs(ids...)
+	return _u
+}
+
+// AddTechstack adds the "techstack" edges to the TechSctack entity.
+func (_u *SkillUpdate) AddTechstack(v ...*TechSctack) *SkillUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTechstackIDs(ids...)
+}
+
+// AddProjectIDs adds the "project" edge to the Project entity by IDs.
+func (_u *SkillUpdate) AddProjectIDs(ids ...uint) *SkillUpdate {
+	_u.mutation.AddProjectIDs(ids...)
+	return _u
+}
+
+// AddProject adds the "project" edges to the Project entity.
+func (_u *SkillUpdate) AddProject(v ...*Project) *SkillUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddProjectIDs(ids...)
+}
+
 // Mutation returns the SkillMutation object of the builder.
 func (_u *SkillUpdate) Mutation() *SkillMutation {
 	return _u.mutation
@@ -122,6 +174,48 @@ func (_u *SkillUpdate) RemoveUserSkillAssociation(v ...*UserSkillAssociation) *S
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserSkillAssociationIDs(ids...)
+}
+
+// ClearTechstack clears all "techstack" edges to the TechSctack entity.
+func (_u *SkillUpdate) ClearTechstack() *SkillUpdate {
+	_u.mutation.ClearTechstack()
+	return _u
+}
+
+// RemoveTechstackIDs removes the "techstack" edge to TechSctack entities by IDs.
+func (_u *SkillUpdate) RemoveTechstackIDs(ids ...uint) *SkillUpdate {
+	_u.mutation.RemoveTechstackIDs(ids...)
+	return _u
+}
+
+// RemoveTechstack removes "techstack" edges to TechSctack entities.
+func (_u *SkillUpdate) RemoveTechstack(v ...*TechSctack) *SkillUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTechstackIDs(ids...)
+}
+
+// ClearProject clears all "project" edges to the Project entity.
+func (_u *SkillUpdate) ClearProject() *SkillUpdate {
+	_u.mutation.ClearProject()
+	return _u
+}
+
+// RemoveProjectIDs removes the "project" edge to Project entities by IDs.
+func (_u *SkillUpdate) RemoveProjectIDs(ids ...uint) *SkillUpdate {
+	_u.mutation.RemoveProjectIDs(ids...)
+	return _u
+}
+
+// RemoveProject removes "project" edges to Project entities.
+func (_u *SkillUpdate) RemoveProject(v ...*Project) *SkillUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveProjectIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -162,6 +256,12 @@ func (_u *SkillUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(skill.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Icon(); ok {
+		_spec.SetField(skill.FieldIcon, field.TypeString, value)
+	}
+	if _u.mutation.IconCleared() {
+		_spec.ClearField(skill.FieldIcon, field.TypeString)
 	}
 	if value, ok := _u.mutation.CreatedAt(); ok {
 		_spec.SetField(skill.FieldCreatedAt, field.TypeTime, value)
@@ -220,6 +320,96 @@ func (_u *SkillUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.TechstackCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   skill.TechstackTable,
+			Columns: []string{skill.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTechstackIDs(); len(nodes) > 0 && !_u.mutation.TechstackCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   skill.TechstackTable,
+			Columns: []string{skill.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TechstackIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   skill.TechstackTable,
+			Columns: []string{skill.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ProjectCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   skill.ProjectTable,
+			Columns: skill.ProjectPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedProjectIDs(); len(nodes) > 0 && !_u.mutation.ProjectCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   skill.ProjectTable,
+			Columns: skill.ProjectPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ProjectIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   skill.ProjectTable,
+			Columns: skill.ProjectPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{skill.Label}
@@ -251,6 +441,26 @@ func (_u *SkillUpdateOne) SetNillableName(v *string) *SkillUpdateOne {
 	if v != nil {
 		_u.SetName(*v)
 	}
+	return _u
+}
+
+// SetIcon sets the "icon" field.
+func (_u *SkillUpdateOne) SetIcon(v string) *SkillUpdateOne {
+	_u.mutation.SetIcon(v)
+	return _u
+}
+
+// SetNillableIcon sets the "icon" field if the given value is not nil.
+func (_u *SkillUpdateOne) SetNillableIcon(v *string) *SkillUpdateOne {
+	if v != nil {
+		_u.SetIcon(*v)
+	}
+	return _u
+}
+
+// ClearIcon clears the value of the "icon" field.
+func (_u *SkillUpdateOne) ClearIcon() *SkillUpdateOne {
+	_u.mutation.ClearIcon()
 	return _u
 }
 
@@ -309,6 +519,36 @@ func (_u *SkillUpdateOne) AddUserSkillAssociation(v ...*UserSkillAssociation) *S
 	return _u.AddUserSkillAssociationIDs(ids...)
 }
 
+// AddTechstackIDs adds the "techstack" edge to the TechSctack entity by IDs.
+func (_u *SkillUpdateOne) AddTechstackIDs(ids ...uint) *SkillUpdateOne {
+	_u.mutation.AddTechstackIDs(ids...)
+	return _u
+}
+
+// AddTechstack adds the "techstack" edges to the TechSctack entity.
+func (_u *SkillUpdateOne) AddTechstack(v ...*TechSctack) *SkillUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTechstackIDs(ids...)
+}
+
+// AddProjectIDs adds the "project" edge to the Project entity by IDs.
+func (_u *SkillUpdateOne) AddProjectIDs(ids ...uint) *SkillUpdateOne {
+	_u.mutation.AddProjectIDs(ids...)
+	return _u
+}
+
+// AddProject adds the "project" edges to the Project entity.
+func (_u *SkillUpdateOne) AddProject(v ...*Project) *SkillUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddProjectIDs(ids...)
+}
+
 // Mutation returns the SkillMutation object of the builder.
 func (_u *SkillUpdateOne) Mutation() *SkillMutation {
 	return _u.mutation
@@ -333,6 +573,48 @@ func (_u *SkillUpdateOne) RemoveUserSkillAssociation(v ...*UserSkillAssociation)
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserSkillAssociationIDs(ids...)
+}
+
+// ClearTechstack clears all "techstack" edges to the TechSctack entity.
+func (_u *SkillUpdateOne) ClearTechstack() *SkillUpdateOne {
+	_u.mutation.ClearTechstack()
+	return _u
+}
+
+// RemoveTechstackIDs removes the "techstack" edge to TechSctack entities by IDs.
+func (_u *SkillUpdateOne) RemoveTechstackIDs(ids ...uint) *SkillUpdateOne {
+	_u.mutation.RemoveTechstackIDs(ids...)
+	return _u
+}
+
+// RemoveTechstack removes "techstack" edges to TechSctack entities.
+func (_u *SkillUpdateOne) RemoveTechstack(v ...*TechSctack) *SkillUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTechstackIDs(ids...)
+}
+
+// ClearProject clears all "project" edges to the Project entity.
+func (_u *SkillUpdateOne) ClearProject() *SkillUpdateOne {
+	_u.mutation.ClearProject()
+	return _u
+}
+
+// RemoveProjectIDs removes the "project" edge to Project entities by IDs.
+func (_u *SkillUpdateOne) RemoveProjectIDs(ids ...uint) *SkillUpdateOne {
+	_u.mutation.RemoveProjectIDs(ids...)
+	return _u
+}
+
+// RemoveProject removes "project" edges to Project entities.
+func (_u *SkillUpdateOne) RemoveProject(v ...*Project) *SkillUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveProjectIDs(ids...)
 }
 
 // Where appends a list predicates to the SkillUpdate builder.
@@ -404,6 +686,12 @@ func (_u *SkillUpdateOne) sqlSave(ctx context.Context) (_node *Skill, err error)
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(skill.FieldName, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.Icon(); ok {
+		_spec.SetField(skill.FieldIcon, field.TypeString, value)
+	}
+	if _u.mutation.IconCleared() {
+		_spec.ClearField(skill.FieldIcon, field.TypeString)
+	}
 	if value, ok := _u.mutation.CreatedAt(); ok {
 		_spec.SetField(skill.FieldCreatedAt, field.TypeTime, value)
 	}
@@ -454,6 +742,96 @@ func (_u *SkillUpdateOne) sqlSave(ctx context.Context) (_node *Skill, err error)
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(userskillassociation.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TechstackCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   skill.TechstackTable,
+			Columns: []string{skill.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTechstackIDs(); len(nodes) > 0 && !_u.mutation.TechstackCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   skill.TechstackTable,
+			Columns: []string{skill.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TechstackIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   skill.TechstackTable,
+			Columns: []string{skill.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ProjectCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   skill.ProjectTable,
+			Columns: skill.ProjectPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedProjectIDs(); len(nodes) > 0 && !_u.mutation.ProjectCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   skill.ProjectTable,
+			Columns: skill.ProjectPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ProjectIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   skill.ProjectTable,
+			Columns: skill.ProjectPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
 			},
 		}
 		for _, k := range nodes {

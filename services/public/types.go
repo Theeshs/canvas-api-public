@@ -3,6 +3,7 @@ package public
 import (
 	"api/services/educations"
 	"api/services/experiences"
+	"api/services/projects"
 )
 
 type UserDetails struct {
@@ -20,6 +21,7 @@ type UserDetails struct {
 	Nationality        *string                            `json:"nationality"`
 	Experiences        []experiences.ExperienceWithSkills `json:"experiences,omitempty"`
 	Education          []educations.Education             `json:"educations,omitempty"`
+	Projects           []projects.ProjectResponse         `json:"projects,omitempty"`
 }
 
 // // Error implements error.

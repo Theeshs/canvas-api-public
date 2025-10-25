@@ -6,6 +6,8 @@ import (
 	"api/ent/document"
 	"api/ent/education"
 	"api/ent/experience"
+	"api/ent/project"
+	"api/ent/techsctack"
 	"api/ent/user"
 	"context"
 	"errors"
@@ -260,6 +262,36 @@ func (_c *UserCreate) AddDocuments(v ...*Document) *UserCreate {
 	return _c.AddDocumentIDs(ids...)
 }
 
+// AddTechstackIDs adds the "techstack" edge to the TechSctack entity by IDs.
+func (_c *UserCreate) AddTechstackIDs(ids ...uint) *UserCreate {
+	_c.mutation.AddTechstackIDs(ids...)
+	return _c
+}
+
+// AddTechstack adds the "techstack" edges to the TechSctack entity.
+func (_c *UserCreate) AddTechstack(v ...*TechSctack) *UserCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTechstackIDs(ids...)
+}
+
+// AddProjectIDs adds the "project" edge to the Project entity by IDs.
+func (_c *UserCreate) AddProjectIDs(ids ...uint) *UserCreate {
+	_c.mutation.AddProjectIDs(ids...)
+	return _c
+}
+
+// AddProject adds the "project" edges to the Project entity.
+func (_c *UserCreate) AddProject(v ...*Project) *UserCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddProjectIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_c *UserCreate) Mutation() *UserMutation {
 	return _c.mutation
@@ -449,6 +481,38 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(document.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TechstackIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TechstackTable,
+			Columns: []string{user.TechstackColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(techsctack.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ProjectIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ProjectTable,
+			Columns: []string{user.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeUint),
 			},
 		}
 		for _, k := range nodes {

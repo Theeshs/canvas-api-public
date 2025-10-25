@@ -8,11 +8,13 @@ import (
 	"api/ent"
 	"api/services/educations"
 	"api/services/experiences"
+	"api/services/projects"
 	"api/services/public"
 	"api/services/skills"
 	"api/services/user"
 
 	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql/schema"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -38,7 +40,11 @@ func main() {
 	}
 	defer client.Close()
 
-	if err := client.Schema.Create(context.Background()); err != nil {
+	if err := client.Schema.Create(
+		context.Background(),
+		schema.WithDropColumn(true),
+		schema.WithDropIndex(true),
+	); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
@@ -52,4 +58,5 @@ func registerRoutes(app *fiber.App, client *ent.Client) {
 	experiences.RegisterRoutes(app, client)
 	skills.RegisterRoutes(app, client)
 	public.RegisterRoutes(app, client)
+	projects.RegisterRoutes(app, client)
 }

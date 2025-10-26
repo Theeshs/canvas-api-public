@@ -9,8 +9,18 @@ import (
 	"time"
 )
 
-func GenUserEducations(user_id uint, client *ent.Client) ([]Education, error) {
-	edu, err := client.Education.Query().Where(education.UserID(user_id)).All(context.Background())
+type EducationHandler struct {
+	client *ent.Client
+}
+
+func NewEducationHandler(client *ent.Client) *EducationHandler {
+	return &EducationHandler{
+		client: client,
+	}
+}
+
+func (eh *EducationHandler) GenUserEducations(user_id uint) ([]Education, error) {
+	edu, err := eh.client.Education.Query().Where(education.UserID(user_id)).All(context.Background())
 
 	if err != nil {
 		return nil, err
@@ -35,8 +45,8 @@ func GenUserEducations(user_id uint, client *ent.Client) ([]Education, error) {
 	return result, nil
 }
 
-func GenUserEducation(education_id uint, client *ent.Client) (Education, error) {
-	edu, err := client.Education.Query().Where(education.ID(education_id)).Only(context.Background())
+func (eh *EducationHandler) GenUserEducation(education_id uint, client *ent.Client) (Education, error) {
+	edu, err := eh.client.Education.Query().Where(education.ID(education_id)).Only(context.Background())
 
 	if err != nil {
 		return Education{}, err
@@ -55,12 +65,12 @@ func GenUserEducation(education_id uint, client *ent.Client) (Education, error) 
 	}, nil
 }
 
-func GenCreateUserEducation(edu Education, client *ent.Client) (Education, error) {
-	tx, err := client.Tx(context.Background())
+func (eh *EducationHandler) GenCreateUserEducation(edu Education, client *ent.Client) (Education, error) {
+	tx, err := eh.client.Tx(context.Background())
 	if err != nil {
 		return Education{}, err
 	}
-	userAvailable, err := user.FetchUserByID(client, (edu.UserID))
+	userAvailable, err := user.NewUserHandler(eh.client).FetchUserByID(uint(edu.UserID))
 	startDate, _ := utils.ConvertJsonDate(edu.StartDate)
 	endDate, _ := utils.ConvertJsonDate(edu.EndDate)
 

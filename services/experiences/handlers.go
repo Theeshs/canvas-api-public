@@ -10,8 +10,18 @@ import (
 	"time"
 )
 
-func GenUserExperiences(user_id uint, client *ent.Client) ([]Experience, error) {
-	exp, err := client.Experience.Query().
+type ExperienceHandler struct {
+	client *ent.Client
+}
+
+func NewExperienceHandler(client *ent.Client) *ExperienceHandler {
+	return &ExperienceHandler{
+		client: client,
+	}
+}
+
+func (eh *ExperienceHandler) GenUserExperiences(user_id uint) ([]Experience, error) {
+	exp, err := eh.client.Experience.Query().
 		Where(experience.UserID(user_id)).
 		Order(ent.Desc(experience.FieldStartDate)).
 		All(context.Background())
@@ -36,8 +46,8 @@ func GenUserExperiences(user_id uint, client *ent.Client) ([]Experience, error) 
 	return result, nil
 }
 
-func GenUserExperience(exp_id uint, client *ent.Client) (Experience, error) {
-	exp, err := client.Experience.Query().Where(experience.ID(exp_id)).Only(context.Background())
+func (eh *ExperienceHandler) GenUserExperience(exp_id uint) (Experience, error) {
+	exp, err := eh.client.Experience.Query().Where(experience.ID(exp_id)).Only(context.Background())
 
 	if err != nil {
 		return Experience{}, err
@@ -53,14 +63,14 @@ func GenUserExperience(exp_id uint, client *ent.Client) (Experience, error) {
 	}, nil
 }
 
-func GenCreateExperience(client *ent.Client, experience Experience) (Experience, error) {
+func (eh *ExperienceHandler) GenCreateExperience(experience Experience) (Experience, error) {
 	ctx := context.Background()
-	tx, err := client.Tx(ctx)
+	tx, err := eh.client.Tx(ctx)
 	if err != nil {
 		return Experience{}, err
 	}
 
-	userAvailable, err := user.FetchUserByID(client, experience.UserID)
+	userAvailable, err := user.NewUserHandler(eh.client).FetchUserByID(experience.UserID)
 
 	if err != nil {
 		return Experience{}, err
@@ -108,9 +118,9 @@ func GenCreateExperience(client *ent.Client, experience Experience) (Experience,
 	}, nil
 }
 
-func GenUserExperiencesWithSkills(user_id uint, client *ent.Client) ([]ExperienceWithSkills, error) {
+func (eh *ExperienceHandler) GenUserExperiencesWithSkills(user_id uint) ([]ExperienceWithSkills, error) {
 	ctx := context.Background()
-	exps, err := client.Experience.
+	exps, err := eh.client.Experience.
 		Query().
 		WithUserSkillAssociation(func(q *ent.UserSkillAssociationQuery) {
 			q.WithSkill()
@@ -146,15 +156,15 @@ func GenUserExperiencesWithSkills(user_id uint, client *ent.Client) ([]Experienc
 	return result, nil
 }
 
-func GenAddSkillsToExperience(association SkillAssociation, client *ent.Client) error {
+func (eh *ExperienceHandler) GenAddSkillsToExperience(association SkillAssociation) error {
 	ctx := context.Background()
 
-	tx, err := client.Tx(ctx)
+	tx, err := eh.client.Tx(ctx)
 	if err != nil {
 		return err
 	}
 
-	if _, err := client.UserSkillAssociation.Create().
+	if _, err := eh.client.UserSkillAssociation.Create().
 		SetExperienceID(association.ExperienceID).
 		SetSkillID(association.SkillID).
 		Save(ctx); err != nil {

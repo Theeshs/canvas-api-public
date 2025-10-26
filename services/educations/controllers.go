@@ -8,7 +8,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func GetUserEducation(c *fiber.Ctx, client *ent.Client) error {
+type EducationController struct {
+	handler *EducationHandler
+}
+
+func NewEducationController(client *ent.Client) *EducationController {
+	return &EducationController{
+		handler: NewEducationHandler(client),
+	}
+}
+
+func (ec *EducationController) GetUserEducation(c *fiber.Ctx) error {
 	userIdStr := c.Params("id")
 	userId, err := strconv.Atoi(userIdStr)
 	if err != nil {
@@ -17,14 +27,14 @@ func GetUserEducation(c *fiber.Ctx, client *ent.Client) error {
 		})
 	}
 
-	_, err = user.FetchUserByID(client, uint(userId))
+	_, err = user.NewUserHandler(ec.handler.client).FetchUserByID(uint(userId))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "User not found",
 		})
 	}
 
-	education, err := GenUserEducations(uint(userId), client)
+	education, err := ec.handler.GenUserEducations(uint(userId))
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "No educations available",
@@ -37,7 +47,7 @@ func GetUserEducation(c *fiber.Ctx, client *ent.Client) error {
 	})
 }
 
-func GetUserExperience(c *fiber.Ctx, client *ent.Client) error {
+func (ec *EducationController) GetUserExperience(c *fiber.Ctx) error {
 	eduIDStr := c.Params("id")
 	eduId, err := strconv.Atoi(eduIDStr)
 	if err != nil {
@@ -45,7 +55,7 @@ func GetUserExperience(c *fiber.Ctx, client *ent.Client) error {
 			"error": "Unable to access experience",
 		})
 	}
-	education, err := GenUserEducation(uint(eduId), client)
+	education, err := ec.handler.GenUserEducation(uint(eduId), ec.handler.client)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Education not found",
@@ -58,7 +68,7 @@ func GetUserExperience(c *fiber.Ctx, client *ent.Client) error {
 	})
 }
 
-func CreateEducation(c *fiber.Ctx, client *ent.Client) error {
+func (ec *EducationController) CreateEducation(c *fiber.Ctx) error {
 	edu := new(Education)
 	if err := c.BodyParser(edu); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -66,7 +76,7 @@ func CreateEducation(c *fiber.Ctx, client *ent.Client) error {
 		})
 	}
 
-	createdExp, err := GenCreateUserEducation(*edu, client)
+	createdExp, err := ec.handler.GenCreateUserEducation(*edu, ec.handler.client)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

@@ -7,14 +7,15 @@ import (
 )
 
 func RegisterRoutes(app *fiber.App, client *ent.Client) {
+	service := NewEducationController(client)
 	app.Get("/educations/:user_id", func(c *fiber.Ctx) error {
-		return GetUserEducation(c, client)
+		return service.GetUserEducation(c)
 	})
 
 	app.Get("/educations/:edu_id", func(c *fiber.Ctx) error {
-		return GetUserEducation(c, client)
+		return service.GetUserEducation(c)
 	})
 	app.Post("/educations", func(c *fiber.Ctx) error {
-		return CreateEducation(c, client)
+		return service.CreateEducation(c)
 	})
 }

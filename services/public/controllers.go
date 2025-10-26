@@ -7,9 +7,19 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func MyData(c *fiber.Ctx, client *ent.Client) error {
+type PublicController struct {
+	handler *PublicHandler
+}
 
-	resp, err := GetPortfolioData(client)
+func NewPublicController(client *ent.Client) *PublicController {
+	return &PublicController{
+		handler: NewPublicHandler(client),
+	}
+}
+
+func (pc *PublicController) MyData(c *fiber.Ctx) error {
+
+	resp, err := pc.handler.GetPortfolioData()
 	if err != nil {
 		log.Println("Error retrieving data:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

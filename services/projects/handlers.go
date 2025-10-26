@@ -23,7 +23,7 @@ func (ph *ProjectsHandler) GenCreateProject(project ProjectCreateRequest) (Proje
 	if err != nil {
 		return ProjectResponse{}, err
 	}
-	user, err := user.FetchUserByID(ph.client, project.UserID)
+	user, err := user.NewUserHandler(ph.client).FetchUserByID(project.UserID)
 	if err != nil {
 		return ProjectResponse{}, err
 	}

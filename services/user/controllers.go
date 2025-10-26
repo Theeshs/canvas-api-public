@@ -14,11 +14,21 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Home(c *fiber.Ctx, client *ent.Client) error {
+type UserController struct {
+	handler *UserHandler
+}
+
+func NewUserConteroller(client *ent.Client) *UserController {
+	return &UserController{
+		handler: NewUserHandler(client),
+	}
+}
+
+func (uc *UserController) Home(c *fiber.Ctx) error {
 	return c.SendString("Hello, World!")
 }
 
-func CreateUsers(c *fiber.Ctx, client *ent.Client) error {
+func (uc *UserController) CreateUsers(c *fiber.Ctx) error {
 
 	user := new(User)
 
@@ -28,7 +38,7 @@ func CreateUsers(c *fiber.Ctx, client *ent.Client) error {
 		})
 	}
 
-	if CheckUserAvailability(user.Email, client) {
+	if uc.handler.CheckUserAvailability(user.Email) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "User account already available",
 		})
@@ -36,7 +46,7 @@ func CreateUsers(c *fiber.Ctx, client *ent.Client) error {
 
 	hashedPassword, err := common.GenPasswordHash(user.Password)
 
-	createdUser, err := CreateUser(user.Email, hashedPassword, user.UserName, client)
+	createdUser, err := uc.handler.CreateUser(user.Email, hashedPassword, user.UserName)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -53,7 +63,7 @@ func CreateUsers(c *fiber.Ctx, client *ent.Client) error {
 
 }
 
-func UpdateUser(c *fiber.Ctx, client *ent.Client) error {
+func (uc *UserController) UpdateUser(c *fiber.Ctx) error {
 	user := new(User)
 
 	if err := c.BodyParser(user); err != nil {
@@ -70,7 +80,7 @@ func UpdateUser(c *fiber.Ctx, client *ent.Client) error {
 		})
 	}
 
-	_, err = client.User.Get(context.Background(), uint(idInt))
+	_, err = uc.handler.client.User.Get(context.Background(), uint(idInt))
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -78,7 +88,7 @@ func UpdateUser(c *fiber.Ctx, client *ent.Client) error {
 		})
 	}
 
-	updatedUser, err := UpdateUsers(uint(idInt), *user, client)
+	updatedUser, err := uc.handler.UpdateUsers(uint(idInt), *user)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "User update fialed",
@@ -92,7 +102,7 @@ func UpdateUser(c *fiber.Ctx, client *ent.Client) error {
 
 }
 
-func SendEmailNotification(c *fiber.Ctx, client *ent.Client) error {
+func (uc *UserController) SendEmailNotification(c *fiber.Ctx) error {
 	emailMessage := new(EmailMessage)
 
 	if err := c.BodyParser(emailMessage); err != nil {
@@ -114,7 +124,7 @@ func SendEmailNotification(c *fiber.Ctx, client *ent.Client) error {
 	})
 }
 
-func UploadUserResume(c *fiber.Ctx, client *ent.Client) error {
+func (uc *UserController) UploadUserResume(c *fiber.Ctx) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString("File not found")
@@ -128,7 +138,7 @@ func UploadUserResume(c *fiber.Ctx, client *ent.Client) error {
 	defer src.Close()
 
 	// Upload to Google Drive
-	fileID, err := GenUploadToDrive(file.Filename, src, 1, document.DocumentTypeResume, client)
+	fileID, err := uc.handler.GenUploadToDrive(file.Filename, src, 1, document.DocumentTypeResume)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": err.Error(),

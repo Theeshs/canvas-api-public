@@ -106,7 +106,7 @@ func (h *SkillHandler) GenTechStack(user_id uint) ([]TeckStack, error) {
 func (h *SkillHandler) GenCreateTechStack(stack TechStackCreateRequest) (TechStackCreateResponse, error) {
 	ctx := context.Background()
 	name := h.techStackUtilHandler.GetTechStackName(stack.TeckStackName)
-	user, err := user.FetchUserByID(h.client, stack.UserID)
+	user, err := user.NewUserHandler(h.client).FetchUserByID(stack.UserID)
 	if err != nil {
 		return TechStackCreateResponse{}, err
 	}

@@ -23,13 +23,23 @@ const (
 	DocumentTypeOther       DocumentType = "other"
 )
 
-func CheckUserAvailability(email string, client *ent.Client) bool {
-	user, _ := client.User.Query().Where(user.Email(email)).Only(context.Background())
+type UserHandler struct {
+	client *ent.Client
+}
+
+func NewUserHandler(client *ent.Client) *UserHandler {
+	return &UserHandler{
+		client: client,
+	}
+}
+
+func (uh *UserHandler) CheckUserAvailability(email string) bool {
+	user, _ := uh.client.User.Query().Where(user.Email(email)).Only(context.Background())
 	return user != nil
 }
 
-func CreateUser(email string, password string, username string, client *ent.Client) (*ent.User, error) {
-	tx, err := client.Tx(context.Background())
+func (uh *UserHandler) CreateUser(email string, password string, username string) (*ent.User, error) {
+	tx, err := uh.client.Tx(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -47,14 +57,14 @@ func CreateUser(email string, password string, username string, client *ent.Clie
 	return newUser, err
 }
 
-func UpdateUsers(id uint, u User, client *ent.Client) (*ent.User, error) {
+func (uh *UserHandler) UpdateUsers(id uint, u User) (*ent.User, error) {
 
 	dob, err := utils.ConvertJsonDate(*u.DOB)
 
 	if err != nil {
 		return nil, err
 	}
-	user, err := client.User.UpdateOneID(uint(id)).
+	user, err := uh.client.User.UpdateOneID(uint(id)).
 		SetUsername(u.UserName).
 		SetFirstName(*u.FirstName).
 		SetLastName(*u.LastName).
@@ -75,15 +85,15 @@ func UpdateUsers(id uint, u User, client *ent.Client) (*ent.User, error) {
 
 }
 
-func FetchUserByID(client *ent.Client, id uint) (*ent.User, error) {
-	return client.User.Get(context.Background(), id)
+func (uh *UserHandler) FetchUserByID(id uint) (*ent.User, error) {
+	return uh.client.User.Get(context.Background(), id)
 }
 
-func GenUploadToDrive(fileName string, file multipart.File, userId uint, documentType document.DocumentType, entClient *ent.Client) (string, error) {
+func (uh *UserHandler) GenUploadToDrive(fileName string, file multipart.File, userId uint, documentType document.DocumentType) (string, error) {
 	ctx := context.Background()
-	tx, err := entClient.Tx(context.Background())
+	tx, err := uh.client.Tx(context.Background())
 
-	user, err := FetchUserByID(entClient, userId)
+	user, err := uh.FetchUserByID(userId)
 	if err != nil {
 		return "", fmt.Errorf("Failed to find a user: %v", err)
 	}
@@ -119,7 +129,7 @@ func GenUploadToDrive(fileName string, file multipart.File, userId uint, documen
 
 	fmt.Printf("File '%s' uploaded successfully with ID: %s\n", driveFile.Name, driveFile.Id)
 	// driveFile
-	_, err = entClient.Document.Create().
+	_, err = uh.client.Document.Create().
 		SetDocumentName(fileName).
 		SetGoogleID(driveFile.Id).
 		SetUser(user).

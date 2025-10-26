@@ -7,7 +7,8 @@ import (
 )
 
 func RegisterRoutes(app *fiber.App, client *ent.Client) {
+	service := NewPublicController(client)
 	app.Get("/portfolio", func(c *fiber.Ctx) error {
-		return MyData(c, client)
+		return service.MyData(c)
 	})
 }

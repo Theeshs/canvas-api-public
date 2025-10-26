@@ -7,17 +7,18 @@ import (
 )
 
 func RegisterRoutes(app *fiber.App, client *ent.Client) {
+	service := NewExperienceController(client)
 	app.Get("/experience/:user_id", func(c *fiber.Ctx) error {
-		return GetUserExperiences(c, client)
+		return service.GetUserExperiences(c)
 	})
 
 	app.Get("/experience/:experience_id", func(c *fiber.Ctx) error {
-		return GetUserExperience(c, client)
+		return service.GetUserExperience(c)
 	})
 	app.Post("/experience", func(c *fiber.Ctx) error {
-		return CreateExperience(c, client)
+		return service.CreateExperience(c)
 	})
 	app.Put("/experience/skills", func(c *fiber.Ctx) error {
-		return AddSkillWithExperience(c, client)
+		return service.AddSkillWithExperience(c)
 	})
 }

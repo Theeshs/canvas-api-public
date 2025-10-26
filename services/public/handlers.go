@@ -11,10 +11,20 @@ import (
 	"sync"
 )
 
-func GetPortfolioData(client *ent.Client) (UserDetails, error) {
+type PublicHandler struct {
+	client *ent.Client
+}
+
+func NewPublicHandler(client *ent.Client) *PublicHandler {
+	return &PublicHandler{
+		client: client,
+	}
+}
+
+func (ph *PublicHandler) GetPortfolioData() (UserDetails, error) {
 	email := "theekshana.sandaru@gmail.com"
 
-	user := client.User.Query().Where(user.Email(email)).OnlyX(context.Background())
+	user := ph.client.User.Query().Where(user.Email(email)).OnlyX(context.Background())
 	mn := int(user.MobileNumber)
 	dobStr := user.Dob.Format("2006-01-02")
 
@@ -30,17 +40,17 @@ func GetPortfolioData(client *ent.Client) (UserDetails, error) {
 
 	go func() {
 		defer wg.Done()
-		exp, err1 = experiences.GenUserExperiencesWithSkills(user.ID, client)
+		exp, err1 = experiences.NewExperienceHandler(ph.client).GenUserExperiencesWithSkills(user.ID)
 	}()
 
 	go func() {
 		defer wg.Done()
-		edu, err2 = educations.GenUserEducations(user.ID, client)
+		edu, err2 = educations.NewEducationHandler(ph.client).GenUserEducations(user.ID)
 	}()
 
 	go func() {
 		defer wg.Done()
-		pro, err3 = projects.NewProjectHandler(client).GenProjectList(user.ID)
+		pro, err3 = projects.NewProjectHandler(ph.client).GenProjectList(user.ID)
 	}()
 
 	wg.Wait()

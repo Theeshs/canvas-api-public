@@ -9,7 +9,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func GetUserExperiences(c *fiber.Ctx, client *ent.Client) error {
+type ExperienceController struct {
+	handler *ExperienceHandler
+}
+
+func NewExperienceController(client *ent.Client) *ExperienceController {
+	return &ExperienceController{
+		handler: NewExperienceHandler(client),
+	}
+}
+
+func (ec *ExperienceController) GetUserExperiences(c *fiber.Ctx) error {
 	userIdStr := c.Params("id")
 	userId, err := strconv.Atoi(userIdStr)
 	if err != nil {
@@ -18,14 +28,14 @@ func GetUserExperiences(c *fiber.Ctx, client *ent.Client) error {
 		})
 	}
 
-	_, err = user.FetchUserByID(client, uint(userId))
+	_, err = user.NewUserHandler(ec.handler.client).FetchUserByID(uint(userId))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "User not found",
 		})
 	}
 
-	experiences, err := GenUserExperiences(uint(userId), client)
+	experiences, err := ec.handler.GenUserExperiences(uint(userId))
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "No experiences available",
@@ -38,7 +48,7 @@ func GetUserExperiences(c *fiber.Ctx, client *ent.Client) error {
 	})
 }
 
-func GetUserExperience(c *fiber.Ctx, client *ent.Client) error {
+func (ec *ExperienceController) GetUserExperience(c *fiber.Ctx) error {
 	expIDStr := c.Params("id")
 	expId, err := strconv.Atoi(expIDStr)
 	if err != nil {
@@ -46,7 +56,7 @@ func GetUserExperience(c *fiber.Ctx, client *ent.Client) error {
 			"error": "Unable to access experience",
 		})
 	}
-	experience, err := GenUserExperience(uint(expId), client)
+	experience, err := ec.handler.GenUserExperience(uint(expId))
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Experience not found",
@@ -59,7 +69,7 @@ func GetUserExperience(c *fiber.Ctx, client *ent.Client) error {
 	})
 }
 
-func CreateExperience(c *fiber.Ctx, client *ent.Client) error {
+func (ec *ExperienceController) CreateExperience(c *fiber.Ctx) error {
 	exp := new(Experience)
 	if err := c.BodyParser(exp); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -67,7 +77,7 @@ func CreateExperience(c *fiber.Ctx, client *ent.Client) error {
 		})
 	}
 
-	createdExp, err := GenCreateExperience(client, *exp)
+	createdExp, err := ec.handler.GenCreateExperience(*exp)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -81,7 +91,7 @@ func CreateExperience(c *fiber.Ctx, client *ent.Client) error {
 	})
 }
 
-func AddSkillWithExperience(c *fiber.Ctx, client *ent.Client) error {
+func (ec *ExperienceController) AddSkillWithExperience(c *fiber.Ctx) error {
 	association := new(SkillAssociation)
 
 	if err := c.BodyParser(association); err != nil {
@@ -90,7 +100,7 @@ func AddSkillWithExperience(c *fiber.Ctx, client *ent.Client) error {
 		})
 	}
 
-	if err := GenAddSkillsToExperience(*association, client); err != nil {
+	if err := ec.handler.GenAddSkillsToExperience(*association); err != nil {
 		fmt.Println(err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Skill creating failed",

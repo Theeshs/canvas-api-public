@@ -7,19 +7,20 @@ import (
 )
 
 func RegisterRoutes(app *fiber.App, client *ent.Client) {
+	service := NewUserConteroller(client)
 	app.Get("/", func(c *fiber.Ctx) error {
-		return Home(c, client)
+		return service.Home(c)
 	})
 	app.Post("/user", func(c *fiber.Ctx) error {
-		return CreateUsers(c, client)
+		return service.CreateUsers(c)
 	})
 	app.Put("/user/:id", func(c *fiber.Ctx) error {
-		return UpdateUser(c, client)
+		return service.UpdateUser(c)
 	})
 	app.Post("/email", func(c *fiber.Ctx) error {
-		return SendEmailNotification(c, client)
+		return service.SendEmailNotification(c)
 	})
 	app.Post("/resume", func(c *fiber.Ctx) error {
-		return UploadUserResume(c, client)
+		return service.UploadUserResume(c)
 	})
 }

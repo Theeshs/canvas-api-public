@@ -6,6 +6,7 @@ import (
 
 	"api/config"
 	"api/ent"
+	"api/middlewares"
 	"api/services/educations"
 	"api/services/experiences"
 	"api/services/projects"
@@ -53,10 +54,15 @@ func main() {
 }
 
 func registerRoutes(app *fiber.App, client *ent.Client) {
-	user.RegisterRoutes(app, client)
-	educations.RegisterRoutes(app, client)
-	experiences.RegisterRoutes(app, client)
-	skills.RegisterRoutes(app, client)
+	// Public routes – no API key required
 	public.RegisterRoutes(app, client)
-	projects.RegisterRoutes(app, client)
+
+	// Protected routes – apply API key middleware
+	protected := app.Group("/", middlewares.APIKeyMiddleware())
+
+	user.RegisterRoutes(protected, client)
+	educations.RegisterRoutes(protected, client)
+	experiences.RegisterRoutes(protected, client)
+	skills.RegisterRoutes(protected, client)
+	projects.RegisterRoutes(protected, client)
 }

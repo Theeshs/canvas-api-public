@@ -86,5 +86,6 @@ jobs:
             -e APP_PORT="${{ secrets.APP_PORT }}" \
             -e EMAIL_PASSWORD="${{ secrets.EMAIL_PASSWORD }}" \
             -e EMAIL="${{ secrets.EMAIL }}" \
+            -e API_KEY="${{ secrets.API_KEY }}" \
             ${{ secrets.DOCKERHUB_USERNAME }}/myprofile:latest
             docker system prune -f

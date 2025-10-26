@@ -2,12 +2,14 @@ package experiences
 
 import (
 	"api/ent"
+	"api/middlewares"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func RegisterRoutes(app *fiber.App, client *ent.Client) {
 	service := NewExperienceController(client)
+	app.Use(middlewares.APIKeyMiddleware())
 	app.Get("/experience/:user_id", func(c *fiber.Ctx) error {
 		return service.GetUserExperiences(c)
 	})

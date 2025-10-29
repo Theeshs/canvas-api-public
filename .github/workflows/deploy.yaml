@@ -91,23 +91,30 @@ jobs:
             docker system prune -f
 
   mirror-to-public:
-    needs: build-and-deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout private repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  needs: build-and-deploy
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout private repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      - name: Push to Public Repo
-        env:
-          TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
-        run: |
-          # Optional: remove .github folder to avoid exposing workflows
-          rm -rf .github
+    - name: Push to Public Repo
+      env:
+        TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
+      run: |
+        # Remove public remote if exists
+        git remote remove public || true
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+        # Optional: remove .github folder to avoid exposing workflows
+        rm -rf .github
 
-          git remote add public https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/Theeshs/canvas-api-public.git
-          git push public master --force
+        # Configure Git
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Add public remote with PAT
+        git remote add public https://x-access-token:${TOKEN}@github.com/Theeshs/canvas-api-public.git
+
+        # Push master branch to public
+        git push public master --force

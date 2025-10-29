@@ -100,6 +100,8 @@ jobs:
           fetch-depth: 0
 
       - name: Push to Public Repo
+        env:
+          TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
         run: |
           # Optional: remove .github folder to avoid exposing workflows
           rm -rf .github
@@ -107,7 +109,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git remote add public https://x-access-token:${TOKEN}@github.com/Theeshs/canvas-api-public.git
+          git remote add public https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/Theeshs/canvas-api-public.git
           git push public master --force
-        env:
-          TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}

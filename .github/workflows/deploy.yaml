@@ -89,3 +89,25 @@ jobs:
             -e API_KEY="${{ secrets.API_KEY }}" \
             ${{ secrets.DOCKERHUB_USERNAME }}/myprofile:latest
             docker system prune -f
+
+mirror-to-public:
+  needs: build-and-deploy
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout private repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Push to Public Repo
+      run: |
+        # Optional: remove .github folder to avoid exposing workflows
+        rm -rf .github
+
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        git remote add public https://x-access-token:${TOKEN}@github.com/Theeshs/canvas-api-public.git
+        git push public master --force
+      env:
+        TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}

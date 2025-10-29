@@ -128,6 +128,11 @@ jobs:
       # -------------------------------------------------
       - name: Mirror to public repo
         run: |
+          # Debug: show token exists and is not empty
+          if [[ -z "$TOKEN" ]]; then
+            echo "ERROR: PUBLIC_REPO_TOKEN is empty or missing!"
+            exit 1
+          fi
           # Force-push the exact commit that is checked out (usually the tip of the default branch)
           git push public HEAD:refs/heads/master --force
 

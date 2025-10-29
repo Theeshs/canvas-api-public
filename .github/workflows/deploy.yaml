@@ -91,34 +91,34 @@ jobs:
             docker system prune -f
 
   mirror-to-public:
-  needs: build-and-deploy
-  runs-on: ubuntu-latest
-  permissions:
-    contents: write
-  steps:
-    - name: Checkout private repo
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Remove private files
-      run: |
-        rm -rf .github
-        rm -f .gitignore
+      - name: Remove private files
+        run: |
+          rm -rf .github
+          rm -f .gitignore
 
-    - name: Configure Git & add public remote
-      env:
-        TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
-      run: |
-        git config user.name  "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git remote remove public || true
-        git remote add public "https://x-access-token:${TOKEN}@github.com/Theeshs/canvas-api-public.git"
+      - name: Configure Git & add public remote
+        env:
+          TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote remove public || true
+          git remote add public "https://x-access-token:${TOKEN}@github.com/Theeshs/canvas-api-public.git"
 
-    - name: Mirror to public repo
-      run: |
-        if [[ -z "$TOKEN" ]]; then
-          echo "ERROR: PUBLIC_REPO_TOKEN is empty or missing!"
-          exit 1
-        fi
-        git push public HEAD:refs/heads/main --force
+      - name: Mirror to public repo
+        run: |
+          if [[ -z "$TOKEN" ]]; then
+            echo "ERROR: PUBLIC_REPO_TOKEN is empty or missing!"
+            exit 1
+          fi
+          git push public HEAD:refs/heads/main --force

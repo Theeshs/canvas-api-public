@@ -91,52 +91,34 @@ jobs:
             docker system prune -f
 
   mirror-to-public:
-    needs: build-and-deploy
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write # needed for push
-    steps:
-      - name: Checkout private repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # full history so we can force-push
+  needs: build-and-deploy
+  runs-on: ubuntu-latest
+  permissions:
+    contents: write
+  steps:
+    - name: Checkout private repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      # -------------------------------------------------
-      # 1. Clean the tree – remove everything that must stay private
-      # -------------------------------------------------
-      - name: Remove private files
-        run: |
-          rm -rf .github          # hide workflows
-          rm -f .gitignore        # (optional) hide ignore rules
-          # add any other paths you never want in the public repo
+    - name: Remove private files
+      run: |
+        rm -rf .github
+        rm -f .gitignore
 
-      # -------------------------------------------------
-      # 2. Add the public remote (PAT with repo scope)
-      # -------------------------------------------------
-      - name: Configure Git & add public remote
-        env:
-          TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
-        run: |
-          echo "TOKEN=$TOKEN"
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+    - name: Configure Git & add public remote
+      env:
+        TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
+      run: |
+        git config user.name  "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git remote remove public || true
+        git remote add public "https://x-access-token:${TOKEN}@github.com/Theeshs/canvas-api-public.git"
 
-          git remote remove public || true
-          git remote add public "https://x-access-token:${TOKEN}@github.com/Theeshs/canvas-api-public.git"
-
-      # -------------------------------------------------
-      # 3. Push *all* branches & tags (or just master)
-      # -------------------------------------------------
-      - name: Mirror to public repo
-        run: |
-          # Debug: show token exists and is not empty
-          if [[ -z "$TOKEN" ]]; then
-            echo "ERROR: PUBLIC_REPO_TOKEN is empty or missing!"
-            exit 1
-          fi
-          # Force-push the exact commit that is checked out (usually the tip of the default branch)
-          git push public HEAD:refs/heads/master --force
-
-          # OPTIONAL: mirror every branch & tag
-          # git push public --all --force
-          # git push public --tags --force
+    - name: Mirror to public repo
+      run: |
+        if [[ -z "$TOKEN" ]]; then
+          echo "ERROR: PUBLIC_REPO_TOKEN is empty or missing!"
+          exit 1
+        fi
+        git push public HEAD:refs/heads/main --force

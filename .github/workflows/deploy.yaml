@@ -93,28 +93,44 @@ jobs:
   mirror-to-public:
     needs: build-and-deploy
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # needed for push
     steps:
       - name: Checkout private repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # full history so we can force-push
 
-      - name: Push to Public Repo
+      # -------------------------------------------------
+      # 1. Clean the tree – remove everything that must stay private
+      # -------------------------------------------------
+      - name: Remove private files
+        run: |
+          rm -rf .github          # hide workflows
+          rm -f .gitignore        # (optional) hide ignore rules
+          # add any other paths you never want in the public repo
+
+      # -------------------------------------------------
+      # 2. Add the public remote (PAT with repo scope)
+      # -------------------------------------------------
+      - name: Configure Git & add public remote
         env:
           TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
         run: |
-          # Remove public remote if exists
-          git remote remove public || true
-
-          # Optional: remove .github folder to avoid exposing workflows
-          rm -rf .github
-
-          # Configure Git
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Add public remote with PAT
-          git remote add public https://x-access-token:${TOKEN}@github.com/Theeshs/canvas-api-public.git
+          git remote remove public || true
+          git remote add public "https://x-access-token:${TOKEN}@github.com/Theeshs/canvas-api-public.git"
 
-          # Push master branch to public
-          git push public master --force
+      # -------------------------------------------------
+      # 3. Push *all* branches & tags (or just master)
+      # -------------------------------------------------
+      - name: Mirror to public repo
+        run: |
+          # Force-push the exact commit that is checked out (usually the tip of the default branch)
+          git push public HEAD:refs/heads/master --force
+
+          # OPTIONAL: mirror every branch & tag
+          # git push public --all --force
+          # git push public --tags --force

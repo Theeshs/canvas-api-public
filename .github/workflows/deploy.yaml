@@ -114,6 +114,7 @@ jobs:
       - name: Remove private files
         run: |
           rm -rf .github
+          git rm -rf --cached .github || true
           rm -f .gitignore
           echo "✅ Private files removed"
 

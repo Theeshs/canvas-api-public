@@ -100,25 +100,36 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.PUBLIC_REPO_TOKEN }}
+
+      - name: Validate token exists
+        run: |
+          if [[ -z "${{ secrets.PUBLIC_REPO_TOKEN }}" ]]; then
+            echo "❌ ERROR: PUBLIC_REPO_TOKEN secret is not configured!"
+            echo "Go to Settings > Secrets and variables > Actions > New repository secret"
+            exit 1
+          fi
+          echo "✅ Token found"
 
       - name: Remove private files
         run: |
           rm -rf .github
           rm -f .gitignore
+          echo "✅ Private files removed"
 
-      - name: Configure Git & add public remote
-        env:
-          TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
+      - name: Configure Git
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote remove public || true
-          git remote add public "https://x-access-token:${TOKEN}@github.com/Theeshs/canvas-api-public.git"
+          echo "✅ Git configured"
 
-      - name: Mirror to public repo
+      - name: Add public remote
         run: |
-          if [[ -z "$TOKEN" ]]; then
-            echo "ERROR: PUBLIC_REPO_TOKEN is empty or missing!"
-            exit 1
-          fi
-          git push public HEAD:refs/heads/main --force
+          git remote remove public 2>/dev/null || true
+          git remote add public "https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/Theeshs/canvas-api-public.git"
+          echo "✅ Remote added"
+
+      - name: Push to public repo
+        run: |
+          git push public HEAD:main --force
+          echo "✅ Successfully mirrored to public repo"

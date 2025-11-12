@@ -25,7 +25,7 @@ func (ph *PublicHandler) GetPortfolioData() (UserDetails, error) {
 	email := "theekshana.sandaru@gmail.com"
 
 	user := ph.client.User.Query().Where(user.Email(email)).OnlyX(context.Background())
-	mn := int(user.MobileNumber)
+	// mn := int(user.MobileNumber)
 	dobStr := user.Dob.Format("2006-01-02")
 
 	var (
@@ -61,16 +61,16 @@ func (ph *PublicHandler) GetPortfolioData() (UserDetails, error) {
 	}
 
 	response := UserDetails{
-		Email:              email,
-		UserName:           user.Username,
-		FirstName:          &user.FirstName,
-		LastName:           &user.LastName,
-		DOB:                &dobStr,
-		GithubUsername:     &user.GithubUsername,
-		Description:        &user.Description,
-		MobileNumber:       &mn,
-		AddresBlock:        &user.AddressBlock,
-		AddressStreet:      &user.AddressStreet,
+		Email:          email,
+		UserName:       user.Username,
+		FirstName:      &user.FirstName,
+		LastName:       &user.LastName,
+		DOB:            &dobStr,
+		GithubUsername: &user.GithubUsername,
+		Description:    &user.Description,
+		// MobileNumber:       &mn,
+		// AddresBlock:        &user.AddressBlock,
+		// AddressStreet:      &user.AddressStreet,
 		ResidentialCountry: &user.RecidentialCountry,
 		Nationality:        &user.Nationality,
 		Experiences:        exp,

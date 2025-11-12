@@ -6,11 +6,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// APIKeyMiddleware checks for a valid API key in the request headers
 func APIKeyMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		apiKey := c.Get("X-API-KEY")            // get API key from header
-		expectedKey := config.AppConfig.API_KEY // the key stored in env
+		apiKey := c.Get("X-API-KEY")
+		expectedKey := config.AppConfig.API_KEY
 
 		if apiKey == "" || apiKey != expectedKey {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -18,6 +17,6 @@ func APIKeyMiddleware() fiber.Handler {
 			})
 		}
 
-		return c.Next() // proceed if valid
+		return c.Next()
 	}
 }

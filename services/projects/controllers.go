@@ -2,6 +2,7 @@ package projects
 
 import (
 	"api/ent"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -50,4 +51,48 @@ func (pc *ProjectController) CreateProject(c *fiber.Ctx) error {
 		"message": "Project created successfully",
 		"project": createdProject,
 	})
+}
+
+func (pc *ProjectController) GetProjectByID(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+
+	// Convert string to uint
+	idUint64, err := strconv.ParseUint(idParam, 10, 32)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid project ID",
+		})
+	}
+	projectID := uint(idUint64)
+	project, err := pc.handler.GenProjectByID(1, projectID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Unable to get project",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Project retrived successfully",
+		"skill":   project,
+	})
+}
+
+func (pc *ProjectController) DeleteProjectByID(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+
+	// Convert string to uint
+	idUint64, err := strconv.ParseUint(idParam, 10, 32)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid project ID",
+		})
+	}
+	projectID := uint(idUint64)
+
+	err = pc.handler.GenDeleteProjectByID(1, projectID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Unable to delete project",
+		})
+	}
+	return c.Status(fiber.StatusNoContent).JSON(fiber.Map{})
 }

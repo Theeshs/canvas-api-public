@@ -18,6 +18,16 @@ func NewProjectHandler(client *ent.Client) *ProjectsHandler {
 	}
 }
 
+func (ph *ProjectsHandler) getProjectByID(id uint) (*ent.Project, error) {
+	project, err := ph.client.Project.Get(context.Background(), id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return project, nil
+}
+
 func (ph *ProjectsHandler) GenCreateProject(project ProjectCreateRequest) (ProjectResponse, error) {
 	tx, err := ph.client.Tx(context.Background())
 	ctx := context.Background()
@@ -104,5 +114,25 @@ func (ph *ProjectsHandler) GenDeleteProjectByID(userID, projectID uint) error {
 	if count == 0 {
 		return fmt.Errorf("no project found to delete")
 	}
+	return nil
+}
+
+func (ph *ProjectsHandler) GenUpdateProject(userID, projectID uint, projectPayload ProjectCreateRequest) error {
+	project, err := ph.getProjectByID(projectID)
+	if err != nil {
+		return fmt.Errorf("unable to find the project: %w", err)
+	}
+
+	// Example: update some field
+	_, err = ph.client.Project.
+		UpdateOne(project).
+		SetProjectName(projectPayload.ProjectName).
+		SetDescription(projectPayload.Description).
+		SetURL(projectPayload.URL).
+		Save(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed to update project: %w", err)
+	}
+
 	return nil
 }

@@ -96,3 +96,30 @@ func (pc *ProjectController) DeleteProjectByID(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusNoContent).JSON(fiber.Map{})
 }
+
+func (pc *ProjectController) UpdateProject(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+
+	project := new(ProjectCreateRequest)
+	if err := c.BodyParser(project); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "cannot parse JSON",
+		})
+	}
+
+	idUint64, err := strconv.ParseUint(idParam, 10, 32)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid project ID",
+		})
+	}
+	projectID := uint(idUint64)
+
+	err = pc.handler.GenUpdateProject(1, projectID, *project)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Unable to update project",
+		})
+	}
+	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{})
+}

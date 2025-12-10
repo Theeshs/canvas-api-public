@@ -42,8 +42,8 @@ func (ec *EducationController) GetUserEducation(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Successfully rertireved educations",
-		"user":    education,
+		"message":    "Successfully rertireved educations",
+		"educations": education,
 	})
 }
 
@@ -63,8 +63,8 @@ func (ec *EducationController) GetUserEducationByID(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Education retrieved successfully",
-		"user":    education,
+		"message":   "Education retrieved successfully",
+		"education": education,
 	})
 }
 
@@ -85,7 +85,7 @@ func (ec *EducationController) CreateEducation(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Education created successfully",
-		"user":    createdExp,
+		"message":   "Education created successfully",
+		"education": createdExp,
 	})
 }

@@ -20,9 +20,10 @@ func NewExperienceController(client *ent.Client) *ExperienceController {
 }
 
 func (ec *ExperienceController) GetUserExperiences(c *fiber.Ctx) error {
-	userIdStr := c.Params("id")
+	userIdStr := c.Params("user_id")
 	userId, err := strconv.Atoi(userIdStr)
 	if err != nil {
+		fmt.Print(err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Unable to access user experience",
 		})
@@ -43,13 +44,13 @@ func (ec *ExperienceController) GetUserExperiences(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "User created successfully",
+		"message": "User experiences retrieved",
 		"user":    experiences,
 	})
 }
 
 func (ec *ExperienceController) GetUserExperience(c *fiber.Ctx) error {
-	expIDStr := c.Params("id")
+	expIDStr := c.Params("experience_id")
 	expId, err := strconv.Atoi(expIDStr)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

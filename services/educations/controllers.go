@@ -19,7 +19,7 @@ func NewEducationController(client *ent.Client) *EducationController {
 }
 
 func (ec *EducationController) GetUserEducation(c *fiber.Ctx) error {
-	userIdStr := c.Params("id")
+	userIdStr := c.Params("user_id")
 	userId, err := strconv.Atoi(userIdStr)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -48,7 +48,7 @@ func (ec *EducationController) GetUserEducation(c *fiber.Ctx) error {
 }
 
 func (ec *EducationController) GetUserExperience(c *fiber.Ctx) error {
-	eduIDStr := c.Params("id")
+	eduIDStr := c.Params("edu_id")
 	eduId, err := strconv.Atoi(eduIDStr)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

@@ -44,8 +44,8 @@ func (ec *ExperienceController) GetUserExperiences(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "User experiences retrieved",
-		"user":    experiences,
+		"message":     "User experiences retrieved",
+		"experiences": experiences,
 	})
 }
 
@@ -65,8 +65,8 @@ func (ec *ExperienceController) GetUserExperience(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "User created successfully",
-		"user":    experience,
+		"message":    "User created successfully",
+		"experience": experience,
 	})
 }
 
@@ -87,8 +87,8 @@ func (ec *ExperienceController) CreateExperience(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Experience created successfully",
-		"user":    createdExp,
+		"message":    "Experience created successfully",
+		"experience": createdExp,
 	})
 }
 

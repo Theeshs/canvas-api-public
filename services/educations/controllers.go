@@ -47,7 +47,7 @@ func (ec *EducationController) GetUserEducation(c *fiber.Ctx) error {
 	})
 }
 
-func (ec *EducationController) GetUserExperience(c *fiber.Ctx) error {
+func (ec *EducationController) GetUserEducationByID(c *fiber.Ctx) error {
 	eduIDStr := c.Params("edu_id")
 	eduId, err := strconv.Atoi(eduIDStr)
 	if err != nil {

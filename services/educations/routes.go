@@ -13,7 +13,7 @@ func RegisterRoutes(router fiber.Router, client *ent.Client) {
 	})
 
 	router.Get("/educations/:edu_id", func(c *fiber.Ctx) error {
-		return service.GetUserEducation(c)
+		return service.GetUserEducationByID(c)
 	})
 	router.Post("/educations", func(c *fiber.Ctx) error {
 		return service.CreateEducation(c)

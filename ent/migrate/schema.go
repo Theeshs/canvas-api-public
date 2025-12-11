@@ -120,6 +120,9 @@ var (
 	SkillColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint, Increment: true, SchemaType: map[string]string{"postgres": "serial"}},
 		{Name: "name", Type: field.TypeString, Unique: true},
+		{Name: "category", Type: field.TypeString, Nullable: true},
+		{Name: "years_of_experience", Type: field.TypeUint, Nullable: true},
+		{Name: "proficiency_level", Type: field.TypeString, Nullable: true},
 		{Name: "icon", Type: field.TypeString, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime, Nullable: true},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},

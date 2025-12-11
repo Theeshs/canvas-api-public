@@ -66,11 +66,11 @@ func init() {
 	skillFields := schema.Skill{}.Fields()
 	_ = skillFields
 	// skillDescCreatedAt is the schema descriptor for created_at field.
-	skillDescCreatedAt := skillFields[3].Descriptor()
+	skillDescCreatedAt := skillFields[6].Descriptor()
 	// skill.DefaultCreatedAt holds the default value on creation for the created_at field.
 	skill.DefaultCreatedAt = skillDescCreatedAt.Default.(func() time.Time)
 	// skillDescUpdatedAt is the schema descriptor for updated_at field.
-	skillDescUpdatedAt := skillFields[4].Descriptor()
+	skillDescUpdatedAt := skillFields[7].Descriptor()
 	// skill.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	skill.DefaultUpdatedAt = skillDescUpdatedAt.Default.(func() time.Time)
 	techsctackFields := schema.TechSctack{}.Fields()

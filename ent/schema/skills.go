@@ -18,6 +18,9 @@ func (Skill) Fields() []ent.Field {
 	return []ent.Field{
 		field.Uint("id").SchemaType(map[string]string{"postgres": "serial"}),
 		field.String("name").Unique(),
+		field.String("category").Optional(),
+		field.Uint("years_of_experience").Optional(),
+		field.String("proficiency_level").Optional(),
 		field.String("icon").Optional(),
 		field.Time("created_at").Optional().Default(time.Now),
 		field.Time("updated_at").Optional().Default(time.Now),

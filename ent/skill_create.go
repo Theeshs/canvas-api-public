@@ -29,6 +29,48 @@ func (_c *SkillCreate) SetName(v string) *SkillCreate {
 	return _c
 }
 
+// SetCategory sets the "category" field.
+func (_c *SkillCreate) SetCategory(v string) *SkillCreate {
+	_c.mutation.SetCategory(v)
+	return _c
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (_c *SkillCreate) SetNillableCategory(v *string) *SkillCreate {
+	if v != nil {
+		_c.SetCategory(*v)
+	}
+	return _c
+}
+
+// SetYearsOfExperience sets the "years_of_experience" field.
+func (_c *SkillCreate) SetYearsOfExperience(v uint) *SkillCreate {
+	_c.mutation.SetYearsOfExperience(v)
+	return _c
+}
+
+// SetNillableYearsOfExperience sets the "years_of_experience" field if the given value is not nil.
+func (_c *SkillCreate) SetNillableYearsOfExperience(v *uint) *SkillCreate {
+	if v != nil {
+		_c.SetYearsOfExperience(*v)
+	}
+	return _c
+}
+
+// SetProficiencyLevel sets the "proficiency_level" field.
+func (_c *SkillCreate) SetProficiencyLevel(v string) *SkillCreate {
+	_c.mutation.SetProficiencyLevel(v)
+	return _c
+}
+
+// SetNillableProficiencyLevel sets the "proficiency_level" field if the given value is not nil.
+func (_c *SkillCreate) SetNillableProficiencyLevel(v *string) *SkillCreate {
+	if v != nil {
+		_c.SetProficiencyLevel(*v)
+	}
+	return _c
+}
+
 // SetIcon sets the "icon" field.
 func (_c *SkillCreate) SetIcon(v string) *SkillCreate {
 	_c.mutation.SetIcon(v)
@@ -207,6 +249,18 @@ func (_c *SkillCreate) createSpec() (*Skill, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(skill.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := _c.mutation.Category(); ok {
+		_spec.SetField(skill.FieldCategory, field.TypeString, value)
+		_node.Category = value
+	}
+	if value, ok := _c.mutation.YearsOfExperience(); ok {
+		_spec.SetField(skill.FieldYearsOfExperience, field.TypeUint, value)
+		_node.YearsOfExperience = value
+	}
+	if value, ok := _c.mutation.ProficiencyLevel(); ok {
+		_spec.SetField(skill.FieldProficiencyLevel, field.TypeString, value)
+		_node.ProficiencyLevel = value
 	}
 	if value, ok := _c.mutation.Icon(); ok {
 		_spec.SetField(skill.FieldIcon, field.TypeString, value)

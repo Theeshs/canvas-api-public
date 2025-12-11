@@ -45,6 +45,73 @@ func (_u *SkillUpdate) SetNillableName(v *string) *SkillUpdate {
 	return _u
 }
 
+// SetCategory sets the "category" field.
+func (_u *SkillUpdate) SetCategory(v string) *SkillUpdate {
+	_u.mutation.SetCategory(v)
+	return _u
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (_u *SkillUpdate) SetNillableCategory(v *string) *SkillUpdate {
+	if v != nil {
+		_u.SetCategory(*v)
+	}
+	return _u
+}
+
+// ClearCategory clears the value of the "category" field.
+func (_u *SkillUpdate) ClearCategory() *SkillUpdate {
+	_u.mutation.ClearCategory()
+	return _u
+}
+
+// SetYearsOfExperience sets the "years_of_experience" field.
+func (_u *SkillUpdate) SetYearsOfExperience(v uint) *SkillUpdate {
+	_u.mutation.ResetYearsOfExperience()
+	_u.mutation.SetYearsOfExperience(v)
+	return _u
+}
+
+// SetNillableYearsOfExperience sets the "years_of_experience" field if the given value is not nil.
+func (_u *SkillUpdate) SetNillableYearsOfExperience(v *uint) *SkillUpdate {
+	if v != nil {
+		_u.SetYearsOfExperience(*v)
+	}
+	return _u
+}
+
+// AddYearsOfExperience adds value to the "years_of_experience" field.
+func (_u *SkillUpdate) AddYearsOfExperience(v int) *SkillUpdate {
+	_u.mutation.AddYearsOfExperience(v)
+	return _u
+}
+
+// ClearYearsOfExperience clears the value of the "years_of_experience" field.
+func (_u *SkillUpdate) ClearYearsOfExperience() *SkillUpdate {
+	_u.mutation.ClearYearsOfExperience()
+	return _u
+}
+
+// SetProficiencyLevel sets the "proficiency_level" field.
+func (_u *SkillUpdate) SetProficiencyLevel(v string) *SkillUpdate {
+	_u.mutation.SetProficiencyLevel(v)
+	return _u
+}
+
+// SetNillableProficiencyLevel sets the "proficiency_level" field if the given value is not nil.
+func (_u *SkillUpdate) SetNillableProficiencyLevel(v *string) *SkillUpdate {
+	if v != nil {
+		_u.SetProficiencyLevel(*v)
+	}
+	return _u
+}
+
+// ClearProficiencyLevel clears the value of the "proficiency_level" field.
+func (_u *SkillUpdate) ClearProficiencyLevel() *SkillUpdate {
+	_u.mutation.ClearProficiencyLevel()
+	return _u
+}
+
 // SetIcon sets the "icon" field.
 func (_u *SkillUpdate) SetIcon(v string) *SkillUpdate {
 	_u.mutation.SetIcon(v)
@@ -257,6 +324,27 @@ func (_u *SkillUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(skill.FieldName, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.Category(); ok {
+		_spec.SetField(skill.FieldCategory, field.TypeString, value)
+	}
+	if _u.mutation.CategoryCleared() {
+		_spec.ClearField(skill.FieldCategory, field.TypeString)
+	}
+	if value, ok := _u.mutation.YearsOfExperience(); ok {
+		_spec.SetField(skill.FieldYearsOfExperience, field.TypeUint, value)
+	}
+	if value, ok := _u.mutation.AddedYearsOfExperience(); ok {
+		_spec.AddField(skill.FieldYearsOfExperience, field.TypeUint, value)
+	}
+	if _u.mutation.YearsOfExperienceCleared() {
+		_spec.ClearField(skill.FieldYearsOfExperience, field.TypeUint)
+	}
+	if value, ok := _u.mutation.ProficiencyLevel(); ok {
+		_spec.SetField(skill.FieldProficiencyLevel, field.TypeString, value)
+	}
+	if _u.mutation.ProficiencyLevelCleared() {
+		_spec.ClearField(skill.FieldProficiencyLevel, field.TypeString)
+	}
 	if value, ok := _u.mutation.Icon(); ok {
 		_spec.SetField(skill.FieldIcon, field.TypeString, value)
 	}
@@ -441,6 +529,73 @@ func (_u *SkillUpdateOne) SetNillableName(v *string) *SkillUpdateOne {
 	if v != nil {
 		_u.SetName(*v)
 	}
+	return _u
+}
+
+// SetCategory sets the "category" field.
+func (_u *SkillUpdateOne) SetCategory(v string) *SkillUpdateOne {
+	_u.mutation.SetCategory(v)
+	return _u
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (_u *SkillUpdateOne) SetNillableCategory(v *string) *SkillUpdateOne {
+	if v != nil {
+		_u.SetCategory(*v)
+	}
+	return _u
+}
+
+// ClearCategory clears the value of the "category" field.
+func (_u *SkillUpdateOne) ClearCategory() *SkillUpdateOne {
+	_u.mutation.ClearCategory()
+	return _u
+}
+
+// SetYearsOfExperience sets the "years_of_experience" field.
+func (_u *SkillUpdateOne) SetYearsOfExperience(v uint) *SkillUpdateOne {
+	_u.mutation.ResetYearsOfExperience()
+	_u.mutation.SetYearsOfExperience(v)
+	return _u
+}
+
+// SetNillableYearsOfExperience sets the "years_of_experience" field if the given value is not nil.
+func (_u *SkillUpdateOne) SetNillableYearsOfExperience(v *uint) *SkillUpdateOne {
+	if v != nil {
+		_u.SetYearsOfExperience(*v)
+	}
+	return _u
+}
+
+// AddYearsOfExperience adds value to the "years_of_experience" field.
+func (_u *SkillUpdateOne) AddYearsOfExperience(v int) *SkillUpdateOne {
+	_u.mutation.AddYearsOfExperience(v)
+	return _u
+}
+
+// ClearYearsOfExperience clears the value of the "years_of_experience" field.
+func (_u *SkillUpdateOne) ClearYearsOfExperience() *SkillUpdateOne {
+	_u.mutation.ClearYearsOfExperience()
+	return _u
+}
+
+// SetProficiencyLevel sets the "proficiency_level" field.
+func (_u *SkillUpdateOne) SetProficiencyLevel(v string) *SkillUpdateOne {
+	_u.mutation.SetProficiencyLevel(v)
+	return _u
+}
+
+// SetNillableProficiencyLevel sets the "proficiency_level" field if the given value is not nil.
+func (_u *SkillUpdateOne) SetNillableProficiencyLevel(v *string) *SkillUpdateOne {
+	if v != nil {
+		_u.SetProficiencyLevel(*v)
+	}
+	return _u
+}
+
+// ClearProficiencyLevel clears the value of the "proficiency_level" field.
+func (_u *SkillUpdateOne) ClearProficiencyLevel() *SkillUpdateOne {
+	_u.mutation.ClearProficiencyLevel()
 	return _u
 }
 
@@ -685,6 +840,27 @@ func (_u *SkillUpdateOne) sqlSave(ctx context.Context) (_node *Skill, err error)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(skill.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Category(); ok {
+		_spec.SetField(skill.FieldCategory, field.TypeString, value)
+	}
+	if _u.mutation.CategoryCleared() {
+		_spec.ClearField(skill.FieldCategory, field.TypeString)
+	}
+	if value, ok := _u.mutation.YearsOfExperience(); ok {
+		_spec.SetField(skill.FieldYearsOfExperience, field.TypeUint, value)
+	}
+	if value, ok := _u.mutation.AddedYearsOfExperience(); ok {
+		_spec.AddField(skill.FieldYearsOfExperience, field.TypeUint, value)
+	}
+	if _u.mutation.YearsOfExperienceCleared() {
+		_spec.ClearField(skill.FieldYearsOfExperience, field.TypeUint)
+	}
+	if value, ok := _u.mutation.ProficiencyLevel(); ok {
+		_spec.SetField(skill.FieldProficiencyLevel, field.TypeString, value)
+	}
+	if _u.mutation.ProficiencyLevelCleared() {
+		_spec.ClearField(skill.FieldProficiencyLevel, field.TypeString)
 	}
 	if value, ok := _u.mutation.Icon(); ok {
 		_spec.SetField(skill.FieldIcon, field.TypeString, value)

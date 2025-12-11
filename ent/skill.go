@@ -19,6 +19,12 @@ type Skill struct {
 	ID uint `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Category holds the value of the "category" field.
+	Category string `json:"category,omitempty"`
+	// YearsOfExperience holds the value of the "years_of_experience" field.
+	YearsOfExperience uint `json:"years_of_experience,omitempty"`
+	// ProficiencyLevel holds the value of the "proficiency_level" field.
+	ProficiencyLevel string `json:"proficiency_level,omitempty"`
 	// Icon holds the value of the "icon" field.
 	Icon string `json:"icon,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -76,9 +82,9 @@ func (*Skill) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case skill.FieldID:
+		case skill.FieldID, skill.FieldYearsOfExperience:
 			values[i] = new(sql.NullInt64)
-		case skill.FieldName, skill.FieldIcon:
+		case skill.FieldName, skill.FieldCategory, skill.FieldProficiencyLevel, skill.FieldIcon:
 			values[i] = new(sql.NullString)
 		case skill.FieldCreatedAt, skill.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -108,6 +114,24 @@ func (_m *Skill) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				_m.Name = value.String
+			}
+		case skill.FieldCategory:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field category", values[i])
+			} else if value.Valid {
+				_m.Category = value.String
+			}
+		case skill.FieldYearsOfExperience:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field years_of_experience", values[i])
+			} else if value.Valid {
+				_m.YearsOfExperience = uint(value.Int64)
+			}
+		case skill.FieldProficiencyLevel:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field proficiency_level", values[i])
+			} else if value.Valid {
+				_m.ProficiencyLevel = value.String
 			}
 		case skill.FieldIcon:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -180,6 +204,15 @@ func (_m *Skill) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	builder.WriteString("category=")
+	builder.WriteString(_m.Category)
+	builder.WriteString(", ")
+	builder.WriteString("years_of_experience=")
+	builder.WriteString(fmt.Sprintf("%v", _m.YearsOfExperience))
+	builder.WriteString(", ")
+	builder.WriteString("proficiency_level=")
+	builder.WriteString(_m.ProficiencyLevel)
 	builder.WriteString(", ")
 	builder.WriteString("icon=")
 	builder.WriteString(_m.Icon)

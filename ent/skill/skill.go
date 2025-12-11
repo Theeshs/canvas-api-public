@@ -16,6 +16,12 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldCategory holds the string denoting the category field in the database.
+	FieldCategory = "category"
+	// FieldYearsOfExperience holds the string denoting the years_of_experience field in the database.
+	FieldYearsOfExperience = "years_of_experience"
+	// FieldProficiencyLevel holds the string denoting the proficiency_level field in the database.
+	FieldProficiencyLevel = "proficiency_level"
 	// FieldIcon holds the string denoting the icon field in the database.
 	FieldIcon = "icon"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -55,6 +61,9 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldName,
+	FieldCategory,
+	FieldYearsOfExperience,
+	FieldProficiencyLevel,
 	FieldIcon,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -94,6 +103,21 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByCategory orders the results by the category field.
+func ByCategory(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCategory, opts...).ToFunc()
+}
+
+// ByYearsOfExperience orders the results by the years_of_experience field.
+func ByYearsOfExperience(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldYearsOfExperience, opts...).ToFunc()
+}
+
+// ByProficiencyLevel orders the results by the proficiency_level field.
+func ByProficiencyLevel(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProficiencyLevel, opts...).ToFunc()
 }
 
 // ByIcon orders the results by the icon field.

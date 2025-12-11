@@ -60,6 +60,21 @@ func Name(v string) predicate.Skill {
 	return predicate.Skill(sql.FieldEQ(FieldName, v))
 }
 
+// Category applies equality check predicate on the "category" field. It's identical to CategoryEQ.
+func Category(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldEQ(FieldCategory, v))
+}
+
+// YearsOfExperience applies equality check predicate on the "years_of_experience" field. It's identical to YearsOfExperienceEQ.
+func YearsOfExperience(v uint) predicate.Skill {
+	return predicate.Skill(sql.FieldEQ(FieldYearsOfExperience, v))
+}
+
+// ProficiencyLevel applies equality check predicate on the "proficiency_level" field. It's identical to ProficiencyLevelEQ.
+func ProficiencyLevel(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldEQ(FieldProficiencyLevel, v))
+}
+
 // Icon applies equality check predicate on the "icon" field. It's identical to IconEQ.
 func Icon(v string) predicate.Skill {
 	return predicate.Skill(sql.FieldEQ(FieldIcon, v))
@@ -138,6 +153,206 @@ func NameEqualFold(v string) predicate.Skill {
 // NameContainsFold applies the ContainsFold predicate on the "name" field.
 func NameContainsFold(v string) predicate.Skill {
 	return predicate.Skill(sql.FieldContainsFold(FieldName, v))
+}
+
+// CategoryEQ applies the EQ predicate on the "category" field.
+func CategoryEQ(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldEQ(FieldCategory, v))
+}
+
+// CategoryNEQ applies the NEQ predicate on the "category" field.
+func CategoryNEQ(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldNEQ(FieldCategory, v))
+}
+
+// CategoryIn applies the In predicate on the "category" field.
+func CategoryIn(vs ...string) predicate.Skill {
+	return predicate.Skill(sql.FieldIn(FieldCategory, vs...))
+}
+
+// CategoryNotIn applies the NotIn predicate on the "category" field.
+func CategoryNotIn(vs ...string) predicate.Skill {
+	return predicate.Skill(sql.FieldNotIn(FieldCategory, vs...))
+}
+
+// CategoryGT applies the GT predicate on the "category" field.
+func CategoryGT(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldGT(FieldCategory, v))
+}
+
+// CategoryGTE applies the GTE predicate on the "category" field.
+func CategoryGTE(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldGTE(FieldCategory, v))
+}
+
+// CategoryLT applies the LT predicate on the "category" field.
+func CategoryLT(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldLT(FieldCategory, v))
+}
+
+// CategoryLTE applies the LTE predicate on the "category" field.
+func CategoryLTE(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldLTE(FieldCategory, v))
+}
+
+// CategoryContains applies the Contains predicate on the "category" field.
+func CategoryContains(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldContains(FieldCategory, v))
+}
+
+// CategoryHasPrefix applies the HasPrefix predicate on the "category" field.
+func CategoryHasPrefix(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldHasPrefix(FieldCategory, v))
+}
+
+// CategoryHasSuffix applies the HasSuffix predicate on the "category" field.
+func CategoryHasSuffix(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldHasSuffix(FieldCategory, v))
+}
+
+// CategoryIsNil applies the IsNil predicate on the "category" field.
+func CategoryIsNil() predicate.Skill {
+	return predicate.Skill(sql.FieldIsNull(FieldCategory))
+}
+
+// CategoryNotNil applies the NotNil predicate on the "category" field.
+func CategoryNotNil() predicate.Skill {
+	return predicate.Skill(sql.FieldNotNull(FieldCategory))
+}
+
+// CategoryEqualFold applies the EqualFold predicate on the "category" field.
+func CategoryEqualFold(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldEqualFold(FieldCategory, v))
+}
+
+// CategoryContainsFold applies the ContainsFold predicate on the "category" field.
+func CategoryContainsFold(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldContainsFold(FieldCategory, v))
+}
+
+// YearsOfExperienceEQ applies the EQ predicate on the "years_of_experience" field.
+func YearsOfExperienceEQ(v uint) predicate.Skill {
+	return predicate.Skill(sql.FieldEQ(FieldYearsOfExperience, v))
+}
+
+// YearsOfExperienceNEQ applies the NEQ predicate on the "years_of_experience" field.
+func YearsOfExperienceNEQ(v uint) predicate.Skill {
+	return predicate.Skill(sql.FieldNEQ(FieldYearsOfExperience, v))
+}
+
+// YearsOfExperienceIn applies the In predicate on the "years_of_experience" field.
+func YearsOfExperienceIn(vs ...uint) predicate.Skill {
+	return predicate.Skill(sql.FieldIn(FieldYearsOfExperience, vs...))
+}
+
+// YearsOfExperienceNotIn applies the NotIn predicate on the "years_of_experience" field.
+func YearsOfExperienceNotIn(vs ...uint) predicate.Skill {
+	return predicate.Skill(sql.FieldNotIn(FieldYearsOfExperience, vs...))
+}
+
+// YearsOfExperienceGT applies the GT predicate on the "years_of_experience" field.
+func YearsOfExperienceGT(v uint) predicate.Skill {
+	return predicate.Skill(sql.FieldGT(FieldYearsOfExperience, v))
+}
+
+// YearsOfExperienceGTE applies the GTE predicate on the "years_of_experience" field.
+func YearsOfExperienceGTE(v uint) predicate.Skill {
+	return predicate.Skill(sql.FieldGTE(FieldYearsOfExperience, v))
+}
+
+// YearsOfExperienceLT applies the LT predicate on the "years_of_experience" field.
+func YearsOfExperienceLT(v uint) predicate.Skill {
+	return predicate.Skill(sql.FieldLT(FieldYearsOfExperience, v))
+}
+
+// YearsOfExperienceLTE applies the LTE predicate on the "years_of_experience" field.
+func YearsOfExperienceLTE(v uint) predicate.Skill {
+	return predicate.Skill(sql.FieldLTE(FieldYearsOfExperience, v))
+}
+
+// YearsOfExperienceIsNil applies the IsNil predicate on the "years_of_experience" field.
+func YearsOfExperienceIsNil() predicate.Skill {
+	return predicate.Skill(sql.FieldIsNull(FieldYearsOfExperience))
+}
+
+// YearsOfExperienceNotNil applies the NotNil predicate on the "years_of_experience" field.
+func YearsOfExperienceNotNil() predicate.Skill {
+	return predicate.Skill(sql.FieldNotNull(FieldYearsOfExperience))
+}
+
+// ProficiencyLevelEQ applies the EQ predicate on the "proficiency_level" field.
+func ProficiencyLevelEQ(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldEQ(FieldProficiencyLevel, v))
+}
+
+// ProficiencyLevelNEQ applies the NEQ predicate on the "proficiency_level" field.
+func ProficiencyLevelNEQ(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldNEQ(FieldProficiencyLevel, v))
+}
+
+// ProficiencyLevelIn applies the In predicate on the "proficiency_level" field.
+func ProficiencyLevelIn(vs ...string) predicate.Skill {
+	return predicate.Skill(sql.FieldIn(FieldProficiencyLevel, vs...))
+}
+
+// ProficiencyLevelNotIn applies the NotIn predicate on the "proficiency_level" field.
+func ProficiencyLevelNotIn(vs ...string) predicate.Skill {
+	return predicate.Skill(sql.FieldNotIn(FieldProficiencyLevel, vs...))
+}
+
+// ProficiencyLevelGT applies the GT predicate on the "proficiency_level" field.
+func ProficiencyLevelGT(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldGT(FieldProficiencyLevel, v))
+}
+
+// ProficiencyLevelGTE applies the GTE predicate on the "proficiency_level" field.
+func ProficiencyLevelGTE(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldGTE(FieldProficiencyLevel, v))
+}
+
+// ProficiencyLevelLT applies the LT predicate on the "proficiency_level" field.
+func ProficiencyLevelLT(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldLT(FieldProficiencyLevel, v))
+}
+
+// ProficiencyLevelLTE applies the LTE predicate on the "proficiency_level" field.
+func ProficiencyLevelLTE(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldLTE(FieldProficiencyLevel, v))
+}
+
+// ProficiencyLevelContains applies the Contains predicate on the "proficiency_level" field.
+func ProficiencyLevelContains(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldContains(FieldProficiencyLevel, v))
+}
+
+// ProficiencyLevelHasPrefix applies the HasPrefix predicate on the "proficiency_level" field.
+func ProficiencyLevelHasPrefix(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldHasPrefix(FieldProficiencyLevel, v))
+}
+
+// ProficiencyLevelHasSuffix applies the HasSuffix predicate on the "proficiency_level" field.
+func ProficiencyLevelHasSuffix(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldHasSuffix(FieldProficiencyLevel, v))
+}
+
+// ProficiencyLevelIsNil applies the IsNil predicate on the "proficiency_level" field.
+func ProficiencyLevelIsNil() predicate.Skill {
+	return predicate.Skill(sql.FieldIsNull(FieldProficiencyLevel))
+}
+
+// ProficiencyLevelNotNil applies the NotNil predicate on the "proficiency_level" field.
+func ProficiencyLevelNotNil() predicate.Skill {
+	return predicate.Skill(sql.FieldNotNull(FieldProficiencyLevel))
+}
+
+// ProficiencyLevelEqualFold applies the EqualFold predicate on the "proficiency_level" field.
+func ProficiencyLevelEqualFold(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldEqualFold(FieldProficiencyLevel, v))
+}
+
+// ProficiencyLevelContainsFold applies the ContainsFold predicate on the "proficiency_level" field.
+func ProficiencyLevelContainsFold(v string) predicate.Skill {
+	return predicate.Skill(sql.FieldContainsFold(FieldProficiencyLevel, v))
 }
 
 // IconEQ applies the EQ predicate on the "icon" field.

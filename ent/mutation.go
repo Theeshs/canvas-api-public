@@ -3726,6 +3726,10 @@ type SkillMutation struct {
 	typ                           string
 	id                            *uint
 	name                          *string
+	category                      *string
+	years_of_experience           *uint
+	addyears_of_experience        *int
+	proficiency_level             *string
 	icon                          *string
 	created_at                    *time.Time
 	updated_at                    *time.Time
@@ -3882,6 +3886,174 @@ func (m *SkillMutation) OldName(ctx context.Context) (v string, err error) {
 // ResetName resets all changes to the "name" field.
 func (m *SkillMutation) ResetName() {
 	m.name = nil
+}
+
+// SetCategory sets the "category" field.
+func (m *SkillMutation) SetCategory(s string) {
+	m.category = &s
+}
+
+// Category returns the value of the "category" field in the mutation.
+func (m *SkillMutation) Category() (r string, exists bool) {
+	v := m.category
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategory returns the old "category" field's value of the Skill entity.
+// If the Skill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkillMutation) OldCategory(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategory requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+	}
+	return oldValue.Category, nil
+}
+
+// ClearCategory clears the value of the "category" field.
+func (m *SkillMutation) ClearCategory() {
+	m.category = nil
+	m.clearedFields[skill.FieldCategory] = struct{}{}
+}
+
+// CategoryCleared returns if the "category" field was cleared in this mutation.
+func (m *SkillMutation) CategoryCleared() bool {
+	_, ok := m.clearedFields[skill.FieldCategory]
+	return ok
+}
+
+// ResetCategory resets all changes to the "category" field.
+func (m *SkillMutation) ResetCategory() {
+	m.category = nil
+	delete(m.clearedFields, skill.FieldCategory)
+}
+
+// SetYearsOfExperience sets the "years_of_experience" field.
+func (m *SkillMutation) SetYearsOfExperience(u uint) {
+	m.years_of_experience = &u
+	m.addyears_of_experience = nil
+}
+
+// YearsOfExperience returns the value of the "years_of_experience" field in the mutation.
+func (m *SkillMutation) YearsOfExperience() (r uint, exists bool) {
+	v := m.years_of_experience
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldYearsOfExperience returns the old "years_of_experience" field's value of the Skill entity.
+// If the Skill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkillMutation) OldYearsOfExperience(ctx context.Context) (v uint, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldYearsOfExperience is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldYearsOfExperience requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldYearsOfExperience: %w", err)
+	}
+	return oldValue.YearsOfExperience, nil
+}
+
+// AddYearsOfExperience adds u to the "years_of_experience" field.
+func (m *SkillMutation) AddYearsOfExperience(u int) {
+	if m.addyears_of_experience != nil {
+		*m.addyears_of_experience += u
+	} else {
+		m.addyears_of_experience = &u
+	}
+}
+
+// AddedYearsOfExperience returns the value that was added to the "years_of_experience" field in this mutation.
+func (m *SkillMutation) AddedYearsOfExperience() (r int, exists bool) {
+	v := m.addyears_of_experience
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearYearsOfExperience clears the value of the "years_of_experience" field.
+func (m *SkillMutation) ClearYearsOfExperience() {
+	m.years_of_experience = nil
+	m.addyears_of_experience = nil
+	m.clearedFields[skill.FieldYearsOfExperience] = struct{}{}
+}
+
+// YearsOfExperienceCleared returns if the "years_of_experience" field was cleared in this mutation.
+func (m *SkillMutation) YearsOfExperienceCleared() bool {
+	_, ok := m.clearedFields[skill.FieldYearsOfExperience]
+	return ok
+}
+
+// ResetYearsOfExperience resets all changes to the "years_of_experience" field.
+func (m *SkillMutation) ResetYearsOfExperience() {
+	m.years_of_experience = nil
+	m.addyears_of_experience = nil
+	delete(m.clearedFields, skill.FieldYearsOfExperience)
+}
+
+// SetProficiencyLevel sets the "proficiency_level" field.
+func (m *SkillMutation) SetProficiencyLevel(s string) {
+	m.proficiency_level = &s
+}
+
+// ProficiencyLevel returns the value of the "proficiency_level" field in the mutation.
+func (m *SkillMutation) ProficiencyLevel() (r string, exists bool) {
+	v := m.proficiency_level
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProficiencyLevel returns the old "proficiency_level" field's value of the Skill entity.
+// If the Skill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkillMutation) OldProficiencyLevel(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProficiencyLevel is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProficiencyLevel requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProficiencyLevel: %w", err)
+	}
+	return oldValue.ProficiencyLevel, nil
+}
+
+// ClearProficiencyLevel clears the value of the "proficiency_level" field.
+func (m *SkillMutation) ClearProficiencyLevel() {
+	m.proficiency_level = nil
+	m.clearedFields[skill.FieldProficiencyLevel] = struct{}{}
+}
+
+// ProficiencyLevelCleared returns if the "proficiency_level" field was cleared in this mutation.
+func (m *SkillMutation) ProficiencyLevelCleared() bool {
+	_, ok := m.clearedFields[skill.FieldProficiencyLevel]
+	return ok
+}
+
+// ResetProficiencyLevel resets all changes to the "proficiency_level" field.
+func (m *SkillMutation) ResetProficiencyLevel() {
+	m.proficiency_level = nil
+	delete(m.clearedFields, skill.FieldProficiencyLevel)
 }
 
 // SetIcon sets the "icon" field.
@@ -4227,9 +4399,18 @@ func (m *SkillMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SkillMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 7)
 	if m.name != nil {
 		fields = append(fields, skill.FieldName)
+	}
+	if m.category != nil {
+		fields = append(fields, skill.FieldCategory)
+	}
+	if m.years_of_experience != nil {
+		fields = append(fields, skill.FieldYearsOfExperience)
+	}
+	if m.proficiency_level != nil {
+		fields = append(fields, skill.FieldProficiencyLevel)
 	}
 	if m.icon != nil {
 		fields = append(fields, skill.FieldIcon)
@@ -4250,6 +4431,12 @@ func (m *SkillMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case skill.FieldName:
 		return m.Name()
+	case skill.FieldCategory:
+		return m.Category()
+	case skill.FieldYearsOfExperience:
+		return m.YearsOfExperience()
+	case skill.FieldProficiencyLevel:
+		return m.ProficiencyLevel()
 	case skill.FieldIcon:
 		return m.Icon()
 	case skill.FieldCreatedAt:
@@ -4267,6 +4454,12 @@ func (m *SkillMutation) OldField(ctx context.Context, name string) (ent.Value, e
 	switch name {
 	case skill.FieldName:
 		return m.OldName(ctx)
+	case skill.FieldCategory:
+		return m.OldCategory(ctx)
+	case skill.FieldYearsOfExperience:
+		return m.OldYearsOfExperience(ctx)
+	case skill.FieldProficiencyLevel:
+		return m.OldProficiencyLevel(ctx)
 	case skill.FieldIcon:
 		return m.OldIcon(ctx)
 	case skill.FieldCreatedAt:
@@ -4288,6 +4481,27 @@ func (m *SkillMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case skill.FieldCategory:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategory(v)
+		return nil
+	case skill.FieldYearsOfExperience:
+		v, ok := value.(uint)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetYearsOfExperience(v)
+		return nil
+	case skill.FieldProficiencyLevel:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProficiencyLevel(v)
 		return nil
 	case skill.FieldIcon:
 		v, ok := value.(string)
@@ -4317,13 +4531,21 @@ func (m *SkillMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *SkillMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addyears_of_experience != nil {
+		fields = append(fields, skill.FieldYearsOfExperience)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *SkillMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case skill.FieldYearsOfExperience:
+		return m.AddedYearsOfExperience()
+	}
 	return nil, false
 }
 
@@ -4332,6 +4554,13 @@ func (m *SkillMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *SkillMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case skill.FieldYearsOfExperience:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddYearsOfExperience(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Skill numeric field %s", name)
 }
@@ -4340,6 +4569,15 @@ func (m *SkillMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *SkillMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(skill.FieldCategory) {
+		fields = append(fields, skill.FieldCategory)
+	}
+	if m.FieldCleared(skill.FieldYearsOfExperience) {
+		fields = append(fields, skill.FieldYearsOfExperience)
+	}
+	if m.FieldCleared(skill.FieldProficiencyLevel) {
+		fields = append(fields, skill.FieldProficiencyLevel)
+	}
 	if m.FieldCleared(skill.FieldIcon) {
 		fields = append(fields, skill.FieldIcon)
 	}
@@ -4363,6 +4601,15 @@ func (m *SkillMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *SkillMutation) ClearField(name string) error {
 	switch name {
+	case skill.FieldCategory:
+		m.ClearCategory()
+		return nil
+	case skill.FieldYearsOfExperience:
+		m.ClearYearsOfExperience()
+		return nil
+	case skill.FieldProficiencyLevel:
+		m.ClearProficiencyLevel()
+		return nil
 	case skill.FieldIcon:
 		m.ClearIcon()
 		return nil
@@ -4382,6 +4629,15 @@ func (m *SkillMutation) ResetField(name string) error {
 	switch name {
 	case skill.FieldName:
 		m.ResetName()
+		return nil
+	case skill.FieldCategory:
+		m.ResetCategory()
+		return nil
+	case skill.FieldYearsOfExperience:
+		m.ResetYearsOfExperience()
+		return nil
+	case skill.FieldProficiencyLevel:
+		m.ResetProficiencyLevel()
 		return nil
 	case skill.FieldIcon:
 		m.ResetIcon()

@@ -1,7 +1,10 @@
 package skills
 
 type Skill struct {
-	Name string `json:"name"`
+	Name              string `json:"name"`
+	Category          string `json:"category"`
+	YearsOfExperience uint   `json:"years_of_experience"`
+	ProficientLevel   string `json:"proficiency_level"`
 }
 
 type SkillInfo struct {

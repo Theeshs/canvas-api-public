@@ -32,7 +32,10 @@ func (h *SkillHandler) GenSkills() ([]Skill, error) {
 
 	for i, e := range allSkills {
 		result[i] = Skill{
-			Name: e.Name,
+			Name:              e.Name,
+			YearsOfExperience: e.YearsOfExperience,
+			Category:          e.Category,
+			ProficientLevel:   e.ProficiencyLevel,
 		}
 	}
 	return result, nil
@@ -47,7 +50,10 @@ func (h *SkillHandler) GenSkill(skill_id uint) (Skill, error) {
 	}
 
 	return Skill{
-		Name: skill.Name,
+		Name:              skill.Name,
+		YearsOfExperience: skill.YearsOfExperience,
+		Category:          skill.Category,
+		ProficientLevel:   skill.ProficiencyLevel,
 	}, nil
 }
 
@@ -60,6 +66,9 @@ func (h *SkillHandler) GenCreateSkill(skill Skill) (Skill, error) {
 	newSkill, err := tx.Skill.
 		Create().
 		SetName(skill.Name).
+		SetProficiencyLevel(skill.ProficientLevel).
+		SetCategory(skill.Category).
+		SetYearsOfExperience(skill.YearsOfExperience).
 		Save(ctx)
 
 	if err != nil {
@@ -69,7 +78,12 @@ func (h *SkillHandler) GenCreateSkill(skill Skill) (Skill, error) {
 	if err := tx.Commit(); err != nil {
 		return Skill{}, err
 	}
-	return Skill{Name: newSkill.Name}, err
+	return Skill{
+		Name:              newSkill.Name,
+		YearsOfExperience: newSkill.YearsOfExperience,
+		Category:          newSkill.Category,
+		ProficientLevel:   newSkill.ProficiencyLevel,
+	}, err
 }
 
 func (h *SkillHandler) GenTechStack(user_id uint) ([]TeckStack, error) {

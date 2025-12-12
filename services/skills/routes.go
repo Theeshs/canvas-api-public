@@ -12,7 +12,7 @@ func RegisterRoutes(router fiber.Router, client *ent.Client) {
 	router.Use(middlewares.APIKeyMiddleware())
 
 	// get requests
-	router.Get("/skill/:id", func(c *fiber.Ctx) error {
+	router.Get("/skills/:id", func(c *fiber.Ctx) error {
 		return service.GetSkill(c)
 	})
 
@@ -24,7 +24,7 @@ func RegisterRoutes(router fiber.Router, client *ent.Client) {
 	})
 
 	// posts
-	router.Post("/skill", func(c *fiber.Ctx) error {
+	router.Post("/skills", func(c *fiber.Ctx) error {
 		return service.CreateSkill(c)
 	})
 
